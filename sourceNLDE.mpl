@@ -17,11 +17,11 @@ buildsystem:= proc(DE::`=`,
 				"If the differential equation is not LEF, its derivatives is used. "
 				"INPUT: -A differential equation DE,                               "
 				"       -its dependent variable like y(t)                          "
-				"	    -a name x for the variable of the system               "
+				"	-a name x for the variable of the system                   "
 				"OUPUT: A list of two lists:                                       "
 				"       - the list of derivatives of the variables of the system   "
 				"         in in terms of these variables                           " 
-				"		- the variables of the system                      ";
+				"       - the variables of the system                              ";
 		t:=op(y);
 		d:=PDEtools:-difforder(DE,t);
 		#variables of substitution for the model, the input x with indices
@@ -46,13 +46,13 @@ mergesystem:= proc(L::list(`=`),
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		description "Merge the dynamical systems of a list of differential equations."
 			    "INPUT: -a list of differential equations,                       "
-			    "        -their dependent variable like y(t)                     "
+			    "       -their dependent variable like y(t)                      "
 			    "OUPUT: A list of three lists:                                   "
 			    "       - the list of derivatives with the variables of          " 
-			    "		  the new system                                     "
-			    "		- the list of variables representing the solutions   "
-			    "		  of the input equations                             "
-			    "		- the variables of the system                        ";
+			    "	      the new system                                         "
+			    "	    - the list of variables representing the solutions       "
+			    "	      of the input equations                                 "
+			    "	    - the variables of the system                            ";
 		Sys:=[seq(buildsystem(L[j],V[j],cat(x,j)),j=1..l)];
 		vars:=map(r->op(r[2]),Sys);
 		deriv:=map(r->op(r[1]),Sys);
@@ -82,10 +82,10 @@ SystoMinDiffPoly:= proc(f::list(algebraic),
 			    "f and g are rational functions in x_1,...,x_n                   "
 			    "INPUT: - the list of derivatives of the variables of the system "
 			    "          in in terms of them.                                  "
-			    "        - the rational expession representing g                 "
-			    "		 - the list of variables of the system               "
-			    "        - the dependent variable (like y(t)) for the            "
-			    "          output differential equation                          "
+			    "       - the rational expession representing g                  "
+			    "       - the list of variables of the system                    "
+			    "       - the dependent variable (like y(t)) for the             "
+			    "         output differential equation                           "
 			    "OUPUT: a differential equations for g                           ";
 		t:=op(1,z);
 		y:=op(0,z);
