@@ -185,8 +185,9 @@ ftogh:= proc(f::name,g::name,h::name,x::name,N::posint,$)::set(`=`); option reme
 unaryDalg:= proc(DE::`=`,
 		  y::anyfunc(name),
 		  z::name=ratpoly,
-		  $)::`=`;
-		local t::name:=op(y),Sys::list,x::nothing,var::name;
+		 $)::`=`;
+		local t::name:=op(y),var::name:=op(0,y),dvar::name=lhs(z),
+		      r::ratpoly:=rhs(z),eq::algebraic,j::nonnegint,Sys::list,x::nothing;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		description "Compute a differential equation for                                   "
 		            "a rational expression of a D-algebraic function from a                "
@@ -196,11 +197,22 @@ unaryDalg:= proc(DE::`=`,
 			    "	    - an equation h=r(f) (a rational expression in f)              "
 			    "	      h is the name for the dependent variable in the output.      "
 			    "OUPUT: a differential equation satisfied by r(f)                      ";
+		var:=op(0,y);
+		dvar:=lhs(z);
+		r:=normal(rhs(z));
+		#Simple case: y appears linearly in r(y)
+		if degree(numer(r),var)=1 and degree(denom(r),var)=1 then
+			eq:=subs(dvar=dvar(t),solve(dvar-r,var));
+			eq:=eval(lhs(DE) - rhs(DE), y=eq);
+			eq:=numer(normal(eq));
+			return collect(eq,[seq(diff(dvar(t),[t$j]),
+			                    j=0..PDEtools:-difforder(DE,t))])=0
+		end if;
+		#General case
 		#build the system using buildsystem
 		Sys:=buildsystem(lhs(DE) - rhs(DE)=0,y,x);
-		var:=op(0,y);
 		#use SystoMinDiffPoly to return the desired output
-		return SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1],normal(rhs(z))),Sys[2],lhs(z)(t))
+		return SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1],r),Sys[2],dvar(t))
 	end proc:
 
 compDalg:= proc(L::[`=`,`=`],
