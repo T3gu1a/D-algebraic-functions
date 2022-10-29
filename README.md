@@ -6,4 +6,4 @@ The file NLDE-examples presents some examples of computations.
 
 The file NLDE.mla is a library produced by the code in sourceNLDE.
 
-The accompanying paper, a joint work with Rida Ait El Manssour and Anna-Laura Sattelberger will be available soon.
+The accompanying paper, a joint work with Rida Ait El Manssour and Anna-Laura Sattelberger, will be available soon.
