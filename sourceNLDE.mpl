@@ -263,8 +263,8 @@ arithmeticDalg:=proc(L::list(`=`),
 			    "	    - an equation z=r(f1,...,fn) where z is the name of the     "
 			    "         dependent variable for the output, and r(f1,...,fn) is    "
 			    "         is a rational expression in f1,...,fn.                    "
-			    "OUPUT: a differential equation for the rational expresion          " 
-	                    "       r(f1,f2,...,fn) on the right-hand side of z    		";
+			    "OUPUT: a differential equation satisfied by the rational expresion " 
+	                    "       r(f1,f2,...,fn)                           		        ";
 		if numelems(L)=1 then
 			return L
 		end if;
