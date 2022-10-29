@@ -8,20 +8,20 @@ local buildsystem, mergesystem, ftogh, subsgfurther;
 
 
 buildsystem:= proc(DE::`=`,
-				   y::anyfunc(name),
-				   x::name,
-				   $)::list(`=`);
+		    y::anyfunc(name),
+	            x::name,
+		   $)::list(`=`);
 		local  t::name, d::posint, SubL::list, PolDE::polynom, j::nonnegint;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		description "Build a dynamical system (or model) from a differential equation. "
-					"If the differential equation is not LEF, its derivatives is used. "
-					"INPUT: -A differential equation DE,                               "
-					"       -its dependent variable like y(t)                          "
-					"	    -a name x for the variable of the system                   "
-					"OUPUT: A list of two lists:                                       "
-					"       - the list of derivatives of the variables of the system   "
-					"         in in terms of these variables                           " 
-					"		- the variables of the system                              ";
+		description     "Build a dynamical system (or model) from a differential equation. "
+				"If the differential equation is not LEF, its derivatives is used. "
+				"INPUT: -A differential equation DE,                               "
+				"       -its dependent variable like y(t)                          "
+				"	-a name x for the variable of the system                   "
+				"OUPUT: A list of two lists:                                       "
+				"       - the list of derivatives of the variables of the system   "
+				"         in in terms of these variables                           " 
+				"	- the variables of the system                              ";
 		t:=op(y);
 		d:=PDEtools:-difforder(DE,t);
 		#variables of substitution for the model, the input x with indices
@@ -39,20 +39,20 @@ buildsystem:= proc(DE::`=`,
 	end proc:
 
 mergesystem:= proc(L::list(`=`),
-				   V::list(anyfunc(name)),
-				   $)::`=`;
+		   V::list(anyfunc(name)),
+		  $)::`=`;
 		local l::posint:=numelems(L), j::posint, Sys::list, vars::list, deriv::list, 
-			  n::posint, x::nothing, X::list, i::posint, Ind::list;
+		      n::posint, x::nothing, X::list, i::posint, Ind::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		description "Merge the dynamical systems of a list of differential equations."
-					"INPUT: -a list of differential equations,                       "
-					"        -their dependent variable like y(t)                     "
-					"OUPUT: A list of three lists:                                   "
-					"       - the list of derivatives with the variables of          " 
-					"		  the new system                                         "
-					"		- the list of variables representing the solutions       "
-					"		  of the input equations                                 "
-					"		- the variables of the system                            ";
+		description     "Merge the dynamical systems of a list of differential equations. "
+				"INPUT: -a list of differential equations,                        "
+				"       -their dependent variable like y(t)                       "
+				"OUPUT: A list of three lists:                                    "
+				"       - the list of derivatives with the variables of           " 
+				"         the new system                                          "
+				"	- the list of variables representing the solutions        "
+				"	  of the input equations                                  "
+				"	- the variables of the system                             ";
 		Sys:=[seq(buildsystem(L[j],V[j],cat(x,j)),j=1..l)];
 		vars:=map(r->op(r[2]),Sys);
 		deriv:=map(r->op(r[1]),Sys);
@@ -71,22 +71,22 @@ mergesystem:= proc(L::list(`=`),
 
 
 SystoMinDiffPoly:= proc(f::list(algebraic),
-                  g::algebraic,
-                  X::Or(list,set),
-                  z::anyfunc(name),$)::algebraic;
+                        g::algebraic,
+                        X::Or(list,set),
+                        z::anyfunc(name),$)::algebraic;
 		local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,t,DE,Sub:=[],j,k,y,alpha;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		description "Compute the minimal order non-linear DE of y=g(p,x)             "
-					"from the system {x'=f(p,x),y=g(p,x)}, for any parametric        "
-					"vector p, and a variable x=(x_1,...x_n), where                  "
-					"f and g are rational functions in x_1,...,x_n                   "
-					"INPUT: - the list of derivatives of the variables of the system "
-					"          in in terms of them.                                  "
-					"        - the rational expession representing g                 "
-					"		 - the list of variables of the system                   "
-					"        - the dependent variable (like y(t)) for the            "
-					"          output differential equation                          "
-					"OUPUT: a differential equations for g                           ";
+		description     "Compute the minimal order non-linear DE of y=g(p,x)             "
+				"from the system {x'=f(p,x),y=g(p,x)}, for any parametric        "
+				"vector p, and a variable x=(x_1,...x_n), where                  "
+				"f and g are rational functions in x_1,...,x_n                   "
+				"INPUT:  - the list of derivatives of the variables of the system"
+				"          in in terms of them.                                  "
+				"        - the rational expession representing g                 "
+				"	 - the list of variables of the system                   "
+				"        - the dependent variable (like y(t)) for the            "
+				"          output differential equation                          "
+				"OUPUT: a differential equations for g                           ";
 		t:=op(1,z);
 		y:=op(0,z);
 		alpha:=indets([f,g]) minus {op(X)};
@@ -128,15 +128,15 @@ SystoMinDiffPoly:= proc(f::list(algebraic),
 subsgfurther :=proc(gm1::algebraic,g::name,t::name,m::posint,n::posint,$)::list;
 		local k::posint,j::nonnegint,Subdiff::list,rSubdiff::list,eqg,Sub::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		description "subprocedure of compDalg for substituting higher derivatives"
-		            "of g in the rational relation R                             "
-					"INPUT: - an algebraic relation representing the link from   "
-					"          the differential equation                         "
-					"        - the name for g                                    "
-					"        - the name for the independent variable t           "
-					"        - the order of the equation of g, m            	 "
-					"        - the order n >= m of the other equation            "
-					"OUPUT: the list required to make the substitution           ";
+		description     "subprocedure of compDalg for substituting higher derivatives"
+		                "of g in the rational relation R                             "
+				"INPUT:  - an algebraic relation representing the link from  "
+				"          the differential equation                         "
+				"        - the name for g                                    "
+				"        - the name for the independent variable t           "
+				"        - the order of the equation of g, m                 "
+				"        - the order n >= m of the other equation            "
+				"OUPUT: the list required to make the substitution           ";
 		k:=0;
 		eqg:=gm1;
 		#the first substition
@@ -162,14 +162,14 @@ ftogh:= proc(f::name,g::name,h::name,x::name,N::posint,$)::set(`=`); option reme
 	   local j::nonnegint,Lderiv::list(algebraic);
 	   option `Copyright (c) 2022 Bertrand Teguia T.`;
 	   description  "subprocedure of compDalg for expressing the derivatives of f"
-		            "in terms of those of h and g                                "
-					"INPUT: - the name for f                                     "
-					"        - the name for g                                    "
-					"        - the name for h                                    "
-					"        - the name for t (always use with x for remembrance)"
-					"        - the integer N (representing n from compDalg)    	 "
-					"OUPUT: the list with the f[j] in terms of g[j] and h[j]     "
-					"        j=0..N                                              ";
+		        "in terms of those of h and g                                "
+			"INPUT:  - the name for f                                    "
+			"        - the name for g                                    "
+			"        - the name for h                                    "
+			"        - the name for t (always use with x for remembrance)"
+			"        - the integer N (representing n from compDalg)      "
+			"OUPUT: the list with the f[j] in terms of g[j] and h[j]     "
+			"       j=0..N                                               ";
 	   #this procedure uses the method which solve the triangular linear system
 	   #of dimention N. It turns out to be more efficient in general compare to
 	   #the recursive approach, even though the latter is more effective 
@@ -183,19 +183,19 @@ ftogh:= proc(f::name,g::name,h::name,x::name,N::posint,$)::set(`=`); option reme
 	end proc:
 
 unaryDalg:= proc(DE::`=`,
-				  y::anyfunc(name),
-				  z::name=ratpoly,
-				  $)::`=`;
+		  y::anyfunc(name),
+		  z::name=ratpoly,
+		  $)::`=`;
 		local t::name:=op(y),Sys::list,x::nothing,var::name;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		description "Compute a differential equation for                               "
-		            "a rational expression of a D-algebraic function from a            "
-					"differential equation that it satisfies.                          "
-					"INPUT: - a differential equation                                  "
-					"        - its dependent variable, say f(t)                        "
-					"		 - an equation h=r(f) (a rational expression in f)         "
-					"		   h is the name for the dependent variable in the output. "
-					"OUPUT: a differential equation satisfied by r(f)                  ";
+		description "Compute a differential equation for                                   "
+		            "a rational expression of a D-algebraic function from a                "
+			    "differential equation that it satisfies.                              "
+			    "INPUT: - a differential equation                                      "
+			    "       - its dependent variable, say f(t)                             "
+			    "	    - an equation h=r(f) (a rational expression in f)              "
+			    "	      h is the name for the dependent variable in the output.      "
+			    "OUPUT: a differential equation satisfied by r(f)                      ";
 		#build the system using buildsystem
 		Sys:=buildsystem(lhs(DE) - rhs(DE)=0,y,x);
 		var:=op(0,y);
@@ -204,21 +204,21 @@ unaryDalg:= proc(DE::`=`,
 	end proc:
 
 compDalg:= proc(L::[`=`,`=`],
-			   V::[anyfunc(name),anyfunc(name)],
-			   z::anyfunc(name),
-			   $)::`=`;
+	        V::[anyfunc(name),anyfunc(name)],
+	        z::anyfunc(name),
+	       $)::`=`;
 		local t::name:=op(z),n::posint,fgh::set(`=`),R,f::nothing,Sys::list,x::nothing,
 		      Sysh::list,g::nothing,h::nothing,j::nonnegint,m::posint,Subg::list,
 		      DE1::`=`,DE2::`=`;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		description "Compose two D-algebraic functions from their differential   "
-					"equations given in the same order with the second argument, "
-					"representing the list of dependent variables.               "
-					"INPUT: - a list of two differential equations [DE(f),DE(g)] "
-					"        - a list of their dependent variables  [f(t),g(t)]  "
-					"		 - the dependent variable of the output h(t)         "
-					"OUPUT: a differential equations for the composition f(g)    "
-					"        of the second g by the first f.                     ";
+			    "equations given in the same order with the second argument, "
+			    "representing the list of dependent variables.               "
+			    "INPUT: - a list of two differential equations [DE(f),DE(g)] "
+			    "       - a list of their dependent variables  [f(t),g(t)]   "
+			    "	    - the dependent variable of the output h(t)          "
+			    "OUPUT: a differential equations for the composition f(g)    "
+			    "       of the second g by the first f.                      ";
 		DE1:=lhs(L[1])-rhs(L[1]);
 		DE2:=lhs(L[2])-rhs(L[2])=0;
 		n:=PDEtools:-difforder(DE1,t);
@@ -248,23 +248,23 @@ compDalg:= proc(L::[`=`,`=`],
 	end proc:
 	
 arithmeticDalg:=proc(L::list(`=`),
-			         V::list(anyfunc(name)),
-			         z::name=ratpoly,
-			        $)::`=`;
+		     V::list(anyfunc(name)),
+		     z::name=ratpoly,
+		    $)::`=`;
 		local t:=op(1,V[1]),DEs::list(`=`),Sys::list,j::posint,subV::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		description "Compute a differential equaton for a rational expression of        "
 		            "D-algebraic functions from differential equations given in the     "
-					"same order with the second argument, representing the list of      "
-					"dependent variables.                                               "
-					"One may supply more than two differential equations.               "
-					"INPUT: - a list of differential equations [DE(f1(t)),...,DE(fn(t))]"
-					"       - a list of their dependent variables [f1(t),...,fn(t)]     "
-					"		- an equation z=r(f1,...,fn) where z is the name of the     "
-					"         dependent variable for the output, and r(f1,...,fn) is    "
-					"         is a rational expression in f1,...,fn.                    "
-					"OUPUT: a differential equation for the rational expresion          " 
-                    "		r(f1,f2,...,fn) on the right-hand side of z    			    ";
+			    "same order with the second argument, representing the list of      "
+			    "dependent variables.                                               "
+			    "One may supply more than two differential equations.               "
+			    "INPUT: - a list of differential equations [DE(f1(t)),...,DE(fn(t))]"
+			    "       - a list of their dependent variables [f1(t),...,fn(t)]     "
+			    "	    - an equation z=r(f1,...,fn) where z is the name of the     "
+			    "         dependent variable for the output, and r(f1,...,fn) is    "
+			    "         is a rational expression in f1,...,fn.                    "
+			    "OUPUT: a differential equation for the rational expresion          " 
+	                    "       r(f1,f2,...,fn) on the right-hand side of z    		";
 		if numelems(L)=1 then
 			return L
 		end if;
