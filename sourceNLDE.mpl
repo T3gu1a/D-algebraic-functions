@@ -2,7 +2,7 @@ NLDE:= module()
 
 option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
 
-export unaryDalg, SystoMinDiffPoly, compDalg, arithmeticDalg;
+export unaryDalg, SystoMinDiffPoly, composeDalg, arithmeticDalg;
 
 local buildsystem, mergesystem, ftogh, subsgfurther;
 
@@ -128,15 +128,15 @@ SystoMinDiffPoly:= proc(f::list(algebraic),
 subsgfurther :=proc(gm1::algebraic,g::name,t::name,m::posint,n::posint,$)::list;
 		local k::posint,j::nonnegint,Subdiff::list,rSubdiff::list,eqg,Sub::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		description     "subprocedure of compDalg for substituting higher derivatives"
-		                "of g in the rational relation R                             "
-				"INPUT:  - an algebraic relation representing the link from  "
-				"          the differential equation                         "
-				"        - the name for g                                    "
-				"        - the name for the independent variable t           "
-				"        - the order of the equation of g, m                 "
-				"        - the order n >= m of the other equation            "
-				"OUPUT: the list required to make the substitution           ";
+		description     "subprocedure of composeDalg for substituting higher derivatives"
+		                "of g in the rational relation R                                "
+				"INPUT:  - an algebraic relation representing the link from     "
+				"          the differential equation                            "
+				"        - the name for g                                       "
+				"        - the name for the independent variable t              "
+				"        - the order of the equation of g, m                    "
+				"        - the order n >= m of the other equation               "
+				"OUPUT: the list required to make the substitution              ";
 		k:=0;
 		eqg:=gm1;
 		#the first substition
@@ -161,15 +161,15 @@ subsgfurther :=proc(gm1::algebraic,g::name,t::name,m::posint,n::posint,$)::list;
 ftogh:= proc(f::name,g::name,h::name,x::name,N::posint,$)::set(`=`); option remember;
 	   local j::nonnegint,Lderiv::list(algebraic);
 	   option `Copyright (c) 2022 Bertrand Teguia T.`;
-	   description  "subprocedure of compDalg for expressing the derivatives of f"
-		        "in terms of those of h and g                                "
-			"INPUT:  - the name for f                                    "
-			"        - the name for g                                    "
-			"        - the name for h                                    "
-			"        - the name for t (always use with x for remembrance)"
-			"        - the integer N (representing n from compDalg)      "
-			"OUPUT: the list with the f[j] in terms of g[j] and h[j]     "
-			"       j=0..N                                               ";
+	   description  "subprocedure of composeDalg for expressing the derivatives of f"
+		        "in terms of those of h and g                                   "
+			"INPUT:  - the name for f                                       "
+			"        - the name for g                                       "
+			"        - the name for h                                       "
+			"        - the name for t (always use with x for remembrance)   "
+			"        - the integer N (representing n from composeDalg)      "
+			"OUPUT: the list with the f[j] in terms of g[j] and h[j]        "
+			"       j=0..N                                                  ";
 	   #this procedure uses the method which solve the triangular linear system
 	   #of dimention N. It turns out to be more efficient in general compare to
 	   #the recursive approach, even though the latter is more effective 
@@ -182,43 +182,10 @@ ftogh:= proc(f::name,g::name,h::name,x::name,N::posint,$)::set(`=`); option reme
 	   return SolveTools:-Linear(Lderiv,[seq(f[j],j=0..N)])
 	end proc:
 
-unaryDalg:= proc(DE::`=`,
-		  y::anyfunc(name),
-		  z::name=ratpoly,
-		 $)::`=`;
-		local t::name:=op(y),var::name:=op(0,y),dvar::name=lhs(z),
-		      r::ratpoly:=rhs(z),eq::algebraic,j::nonnegint,Sys::list,x::nothing;
-		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		description "Compute a differential equation for                                   "
-		            "a rational expression of a D-algebraic function from a                "
-			    "differential equation that it satisfies.                              "
-			    "INPUT: - a differential equation                                      "
-			    "       - its dependent variable, say f(t)                             "
-			    "	    - an equation h=r(f) (a rational expression in f)              "
-			    "	      h is the name for the dependent variable in the output.      "
-			    "OUPUT: a differential equation satisfied by r(f)                      ";
-		var:=op(0,y);
-		dvar:=lhs(z);
-		r:=normal(rhs(z));
-		#Simple case: y appears linearly in r(y)
-		if degree(numer(r),var)=1 and degree(denom(r),var)=1 then
-			eq:=subs(dvar=dvar(t),solve(dvar-r,var));
-			eq:=eval(lhs(DE) - rhs(DE), y=eq);
-			eq:=numer(normal(eq));
-			return collect(eq,[seq(diff(dvar(t),[t$j]),
-			                    j=0..PDEtools:-difforder(DE,t))])=0
-		end if;
-		#General case
-		#build the system using buildsystem
-		Sys:=buildsystem(lhs(DE) - rhs(DE)=0,y,x);
-		#use SystoMinDiffPoly to return the desired output
-		return SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1],r),Sys[2],dvar(t))
-	end proc:
-
-compDalg:= proc(L::[`=`,`=`],
-	        V::[anyfunc(name),anyfunc(name)],
-	        z::anyfunc(name),
-	       $)::`=`;
+composeDalg:= proc(L::[`=`,`=`],
+	           V::[anyfunc(name),anyfunc(name)],
+	           z::anyfunc(name),
+	          $)::`=`;
 		local t::name:=op(z),n::posint,fgh::set(`=`),R,f::nothing,Sys::list,x::nothing,
 		      Sysh::list,g::nothing,h::nothing,j::nonnegint,m::posint,Subg::list,
 		      DE1::`=`,DE2::`=`;
@@ -257,6 +224,39 @@ compDalg:= proc(L::[`=`,`=`],
 		Sysh:=[[seq(h[j],j=1..(n-1)),solve(R,h[n])],[seq(h[j],j=0..(n-1))]];
 		#use SystoMinDiffPoly to return the desired output
 		return SystoMinDiffPoly([op(Sys[1]),op(Sysh[1])],h[0],[op(Sys[2]),op(Sysh[2])],z)
+	end proc:			
+			
+unaryDalg:= proc(DE::`=`,
+		  y::anyfunc(name),
+		  z::name=ratpoly,
+		 $)::`=`;
+		local t::name:=op(y),var::name:=op(0,y),dvar::name=lhs(z),
+		      r::ratpoly:=rhs(z),eq::algebraic,j::nonnegint,Sys::list,x::nothing;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		description "Compute a differential equation for                                   "
+		            "a rational expression of a D-algebraic function from a                "
+			    "differential equation that it satisfies.                              "
+			    "INPUT: - a differential equation                                      "
+			    "       - its dependent variable, say f(t)                             "
+			    "	    - an equation h=r(f) (a rational expression in f)              "
+			    "	      h is the name for the dependent variable in the output.      "
+			    "OUPUT: a differential equation satisfied by r(f)                      ";
+		var:=op(0,y);
+		dvar:=lhs(z);
+		r:=normal(rhs(z));
+		#Simple case: y appears linearly in r(y)
+		if degree(numer(r),var)=1 and degree(denom(r),var)=1 then
+			eq:=subs(dvar=dvar(t),solve(dvar-r,var));
+			eq:=eval(lhs(DE) - rhs(DE), y=eq);
+			eq:=numer(normal(eq));
+			return collect(eq,[seq(diff(dvar(t),[t$j]),
+			                    j=0..PDEtools:-difforder(DE,t))])=0
+		end if;
+		#General case
+		#build the system using buildsystem
+		Sys:=buildsystem(lhs(DE) - rhs(DE)=0,y,x);
+		#use SystoMinDiffPoly to return the desired output
+		return SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1],r),Sys[2],dvar(t))
 	end proc:
 	
 arithmeticDalg:=proc(L::list(`=`),
