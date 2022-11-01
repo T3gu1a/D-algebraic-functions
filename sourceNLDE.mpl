@@ -245,12 +245,12 @@ unaryDalg:= proc(DE::`=`,
 		dvar:=lhs(z);
 		r:=normal(rhs(z));
 		#Simple case: y appears linearly in r(y)
-		if degree(numer(r),var)=1 and degree(denom(r),var)=1 then
+		if degree(numer(r),var)<=1 and degree(denom(r),var)<=1 then
 			eq:=subs(dvar=dvar(t),solve(dvar-r,var));
 			eq:=eval(lhs(DE) - rhs(DE), y=eq);
 			eq:=numer(normal(eq));
 			return collect(eq,[seq(diff(dvar(t),[t$j]),
-			                    j=0..PDEtools:-difforder(DE,t))])=0
+			       j=0..PDEtools:-difforder(DE,t))],'distributed')=0
 		end if;
 		#General case
 		#build the system using buildsystem
