@@ -109,9 +109,10 @@ SystoMinDiffPoly:= proc(f::list(algebraic),
 		for j to n do:
 			J1:=[op(J1),seq(diff(J1[j],t$k),k=1..(n-1))]
 		end do;
+		#differentiating n times the polynomials Q*y - Q*g
 		J2:=[seq(diff(Q*y(t)-normal(Q*G),[t$j]),j=0..n)];
 		J:=[op(J1),op(J2)];
-		#differentiating n times the polynomials Q*y - Q*g
+		#build the list of substitution to see derivatives as variables
 		for j to n do:
 			Sub:=[op(Sub),seq(diff(Xt[j],[t$k])=x[j,k],k=0..n)]
 		end do;
