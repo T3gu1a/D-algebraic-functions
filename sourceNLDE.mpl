@@ -140,11 +140,20 @@ SystoMinDiffPoly_slow:= proc(f::list(algebraic),
 		J:=map(de->collect(de,[seq(y[j],j=0..n)],'distributed'),J);
 		Sub:=select(has,map(e->rhs(e)=lhs(e),Sub),y);
 		J:=map(de->subs(Sub,de),J);
+		#order
 		ord:=min(map(de->PDEtools:-difforder(de,t),J));
 		DE:=select(de->PDEtools:-difforder(de,t)=ord,J);
-		return DE[1]=0
+		Sub:=map(e->rhs(e)=lhs(e),Sub);
+		DE:=map(de->subs(Sub,de),DE);
+		#degree
+		DE:=sort(DE,(a,b)->degree(a,yvars)<=degree(b,yvars));
+		DE:=DE[1];
+		Sub:=map(e->rhs(e)=lhs(e),Sub);
+		return subs(Sub,DE)=0
 	end proc:
 
+#note: one can combine SystoMinDiffPoly_fast and SystoMinDiffPoly_slow into
+#one procedure.
 SystoMinDiffPoly_fast:= proc(f::list(algebraic),
                         g::algebraic,
                         X::Or(list,set),
@@ -193,9 +202,16 @@ SystoMinDiffPoly_fast:= proc(f::list(algebraic),
 		J:=map(de->collect(de,[seq(y[j],j=0..n)],'distributed'),J);
 		Sub:=select(has,map(e->rhs(e)=lhs(e),Sub),y);
 		J:=map(de->subs(Sub,de),J);
+		#order
 		ord:=min(map(de->PDEtools:-difforder(de,t),J));
 		DE:=select(de->PDEtools:-difforder(de,t)=ord,J);
-		return DE[1]=0
+		Sub:=map(e->rhs(e)=lhs(e),Sub);
+		DE:=map(de->subs(Sub,de),DE);
+		#degree
+		DE:=sort(DE,(a,b)->degree(a,yvars)<=degree(b,yvars));
+		DE:=DE[1];
+		Sub:=map(e->rhs(e)=lhs(e),Sub);
+		return subs(Sub,DE)=0
 	end proc:
 
 subsgfurther :=proc(gm1::algebraic,g::name,t::name,m::posint,n::posint,$)::list;
