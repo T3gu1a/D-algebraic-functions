@@ -4,12 +4,12 @@ option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for Mi
 
 export unaryDalg, SystoMinDiffPoly, composeDalg, arithmeticDalg;
 
-local buildsystem, mergesystem, ftogh, subsgfurther;
+local buildsystem, mergesystem, ftogh, subsgfurther, SystoMinDiffPoly_fast, SystoMinDiffPoly_slow;
 
 
 buildsystem:= proc(DE::`=`,
-		    y::anyfunc(name),
-	            x::name,
+		   y::anyfunc(name),
+		   x::name,
 		   $)::list(`=`);
 		local  t::name, d::posint, SubL::list, PolDE::polynom, j::nonnegint;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -40,7 +40,7 @@ buildsystem:= proc(DE::`=`,
 
 mergesystem:= proc(L::list(`=`),
 		   V::list(anyfunc(name)),
-		  $)::`=`;
+		   $)::`=`;
 		local l::posint:=numelems(L), j::posint, Sys::list, vars::list, deriv::list, 
 		      n::posint, x::nothing, X::list, i::posint, Ind::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -69,12 +69,12 @@ mergesystem:= proc(L::list(`=`),
 		return [subs(X,deriv),map(r->x[r],Ind),map(rhs,X)]
 	end proc:
 
-
 SystoMinDiffPoly:= proc(f::list(algebraic),
                         g::algebraic,
                         X::Or(list,set),
-                        z::anyfunc(name),$)::algebraic;
-		local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,t,DE,Sub:=[],j,k,y,alpha;
+                        z::anyfunc(name),
+			{ordering::identical(plex,lexdeg):=plex},
+			$)::algebraic;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		description     "Compute the minimal order non-linear DE of y=g(p,x)             "
 				"from the system {x'=f(p,x),y=g(p,x)}, for any parametric        "
@@ -83,10 +83,75 @@ SystoMinDiffPoly:= proc(f::list(algebraic),
 				"INPUT:  - the list of derivatives of the variables of the system"
 				"          in in terms of them.                                  "
 				"        - the rational expession representing g                 "
-				"	 - the list of variables of the system                   "
+				"	 - the list of variables of the system                	 "
 				"        - the dependent variable (like y(t)) for the            "
 				"          output differential equation                          "
 				"OUPUT: a differential equations for g                           ";
+		return ifelse(ordering=plex,SystoMinDiffPoly_slow(f,g,X,z),SystoMinDiffPoly_fast(f,g,X,z))
+	end proc:
+
+SystoMinDiffPoly_slow:= proc(f::list(algebraic),
+                        g::algebraic,
+                        X::Or(list,set),
+                        z::anyfunc(name),
+			$)::algebraic;
+		local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,t,DE,Sub:=[],allvars,yvars,ord,j,k,y,alpha;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		t:=op(1,z);
+		y:=op(0,z);
+		alpha:=indets([f,g]) minus {op(X)};
+		n:=numelems(X);
+		F:=normal(f);
+		q1:=mul(map(denom,F));
+		G:=normal(g);
+		q2:=denom(G);
+		#least common multiple of the denominators of the system
+		Q:=lcm(q1,q2);
+		#to differentiate, the variables should be functions of the 
+		#independent variable t
+		Xt:=map(x->x=x(t),X);
+		Q:=subs(Xt,Q);
+		F:=subs(Xt,F);
+		G:=subs(Xt,G);
+		Xt:=map(rhs,Xt);
+		J1:=[seq(Q*diff(Xt[j],t)-normal(Q*F[j]),j=1..n)];
+		#differentiating n-1 times the polynomials Q*x'-Q*f
+		for j to n do:
+			J1:=[op(J1),seq(diff(J1[j],t$k),k=1..(n-1))]
+		end do;
+		#differentiating n times the polynomials Q*y - Q*g
+		J2:=[seq(diff(Q*y(t)-normal(Q*G),[t$j]),j=0..n)];
+		J:=[op(J1),op(J2)];
+		#build the list of substitution to see derivatives as variables
+		for j to n do:
+			Sub:=[op(Sub),seq(diff(Xt[j],[t$k])=x[j,k],k=0..n)]
+		end do;
+		Sub:=[op(Sub),seq(diff(y(t),[t$j])=y[j],j=0..n)];
+		allvars:=ListTools:-Reverse(map(rhs,Sub));
+		yvars:=select(has,allvars,y);
+		allvars:=allvars[numelems(yvars)+1..-1];
+		#elimination and saturation with Groebner bases
+		J:=PolynomialIdeals:-PolynomialIdeal(subs(Sub,J),parameters=alpha);
+		J:=PolynomialIdeals:-Saturate(J,subs(Sub,Q));
+		J:=Groebner:-Basis(J,plex(op(allvars),op(yvars)));
+		J:=remove(has,J,allvars);
+		#Taking a diff polynomial of minimal total degree
+		# among those of minimal order
+		J:=map(de->collect(de,[seq(y[j],j=0..n)],'distributed'),J);
+		Sub:=select(has,map(e->rhs(e)=lhs(e),Sub),y);
+		J:=map(de->subs(Sub,de),J);
+		ord:=min(map(de->PDEtools:-difforder(de,t),J));
+		DE:=select(de->PDEtools:-difforder(de,t)=ord,J);
+		return DE[1]=0
+	end proc:
+
+SystoMinDiffPoly_fast:= proc(f::list(algebraic),
+                        g::algebraic,
+                        X::Or(list,set),
+                        z::anyfunc(name),
+			$)::algebraic;
+		local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,t,DE,Sub:=[],yvars,ord,j,k,y,alpha;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		t:=op(1,z);
 		y:=op(0,z);
 		alpha:=indets([f,g]) minus {op(X)};
@@ -120,10 +185,17 @@ SystoMinDiffPoly:= proc(f::list(algebraic),
 		#elimination and saturation with Groebner bases
 		J:=PolynomialIdeals:-PolynomialIdeal(subs(Sub,J),parameters=alpha);
 		J:=PolynomialIdeals:-Saturate(J,subs(Sub,Q));
-		J:=PolynomialIdeals:-EliminationIdeal(J,select(has,map(rhs,Sub),y));
-		DE:=op(1,J);
-		DE:=collect(DE,[seq(y[j],j=0..n)],'distributed');
-		return subs(select(has,map(e->rhs(e)=lhs(e),Sub),y),DE)=0
+		yvars:=select(has,map(rhs,Sub),y);
+		J:=PolynomialIdeals:-EliminationIdeal(J,yvars);
+		#Taking a diff polynomial of minimal total degree
+		# among those of minimal order
+		J:=select(type,convert(J,list),polynom);
+		J:=map(de->collect(de,[seq(y[j],j=0..n)],'distributed'),J);
+		Sub:=select(has,map(e->rhs(e)=lhs(e),Sub),y);
+		J:=map(de->subs(Sub,de),J);
+		ord:=min(map(de->PDEtools:-difforder(de,t),J));
+		DE:=select(de->PDEtools:-difforder(de,t)=ord,J);
+		return DE[1]=0
 	end proc:
 
 subsgfurther :=proc(gm1::algebraic,g::name,t::name,m::posint,n::posint,$)::list;
@@ -163,7 +235,7 @@ ftogh:= proc(f::name,g::name,h::name,x::name,N::posint,$)::set(`=`); option reme
 	   local j::nonnegint,Lderiv::list(algebraic);
 	   option `Copyright (c) 2022 Bertrand Teguia T.`;
 	   description  "subprocedure of composeDalg for expressing the derivatives of f"
-		        "in terms of those of h and g                                   "
+			"in terms of those of h and g                                   "
 			"INPUT:  - the name for f                                       "
 			"        - the name for g                                       "
 			"        - the name for h                                       "
@@ -184,9 +256,10 @@ ftogh:= proc(f::name,g::name,h::name,x::name,N::posint,$)::set(`=`); option reme
 	end proc:
 
 composeDalg:= proc(L::[`=`,`=`],
-	           V::[anyfunc(name),anyfunc(name)],
+		   V::[anyfunc(name),anyfunc(name)],
 	           z::anyfunc(name),
-	          $)::`=`;
+		   {ordering::identical(plex,lexdeg):=plex},
+	           $)::`=`;
 		local t::name:=op(z),n::posint,fgh::set(`=`),R,f::nothing,Sys::list,x::nothing,
 		      Sysh::list,g::nothing,h::nothing,j::nonnegint,m::posint,Subg::list,
 		      DE1::`=`,DE2::`=`;
@@ -224,13 +297,14 @@ composeDalg:= proc(L::[`=`,`=`],
 		#the system for h is easily obtained from R
 		Sysh:=[[seq(h[j],j=1..(n-1)),solve(R,h[n])],[seq(h[j],j=0..(n-1))]];
 		#use SystoMinDiffPoly to return the desired output
-		return SystoMinDiffPoly([op(Sys[1]),op(Sysh[1])],h[0],[op(Sys[2]),op(Sysh[2])],z)
+		return SystoMinDiffPoly([op(Sys[1]),op(Sysh[1])],h[0],[op(Sys[2]),op(Sysh[2])],z,':-ordering'=ordering)
 	end proc:			
 			
 unaryDalg:= proc(DE::`=`,
-		  y::anyfunc(name),
-		  z::name=ratpoly,
-		 $)::`=`;
+		y::anyfunc(name),
+		z::name=ratpoly,
+		{ordering::identical(plex,lexdeg):=plex},
+		$)::`=`;
 		local t::name:=op(y),var::name:=op(0,y),dvar::name=lhs(z),
 		      r::ratpoly:=rhs(z),eq::algebraic,j::nonnegint,Sys::list,x::nothing;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -257,12 +331,13 @@ unaryDalg:= proc(DE::`=`,
 		#build the system using buildsystem
 		Sys:=buildsystem(lhs(DE) - rhs(DE)=0,y,x);
 		#use SystoMinDiffPoly to return the desired output
-		return SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1],r),Sys[2],dvar(t))
+		return SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1],r),Sys[2],dvar(t),':-ordering'=ordering)
 	end proc:
 	
 arithmeticDalg:=proc(L::list(`=`),
 		     V::list(anyfunc(name)),
 		     z::name=ratpoly,
+			 {ordering::identical(plex,lexdeg):=plex},
 		    $)::`=`;
 		local t:=op(1,V[1]),DEs::list(`=`),Sys::list,j::posint,subV::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -288,14 +363,9 @@ arithmeticDalg:=proc(L::list(`=`),
 		#in r according to Sys
 		subV:=[seq(op(0,V[j])=Sys[2][j],j=1..numelems(V))];
 		#use SystoMinDiffPoly to return the desired output
-		return SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t))
+		return SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=ordering)
 	end proc:
 
 end module:
 
 savelib('NLDE',"C:/Users/bertr/maple/toolbox/personal/lib/NLDE.mla"):
-
-
-
-
-
