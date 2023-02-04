@@ -6,4 +6,4 @@ The Jupyter file NLDE-examples.ipynb presents some examples of computations.
 
 The file NLDE.mla is a library produced by the source code in sourceNLDE.mpl.
 
-The accompanying paper, a joint work with Rida Ait El Manssour and Anna-Laura Sattelberger, will be available soon.
+The accompanying paper, a joint work with Rida Ait El Manssour and Anna-Laura Sattelberger, is available at https://arxiv.org/abs/2301.02512.
