@@ -2,19 +2,18 @@ NLDE:= module()
 
 option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
 
-export unaryDalg, SystoMinDiffPoly, composeDalg, arithmeticDalg;
+export unaryDalg, diffDalg, invDalg, SystoMinDiffPoly, composeDalg, arithmeticDalg;
 
-local buildsystem, mergesystem, ftogh, subsgfurther;
-
+local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho;
 
 buildsystem:= proc(DE::`=`,
-		   y::anyfunc(name),
-		   x::name,
+		    y::anyfunc(name),
+		    x::name,
 		   $)::list(`=`);
 		local  t::name, d::posint, SubL::list, PolDE::polynom, j::nonnegint;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		description     "Build a dynamical system (or model) from a differential equation. "
-				"If the differential equation is not LEF, its derivatives is used. "
+				"If the differential equation is not l.h.o, its derivatives is used. "
 				"INPUT: -A differential equation DE,                               "
 				"       -its dependent variable like y(t)                          "
 				"	-a name x for the variable of the system                   "
@@ -27,7 +26,7 @@ buildsystem:= proc(DE::`=`,
 		#variables of substitution for the model, the input x with indices
 		SubL:=[seq(diff(y,[t$j])=x[j],j=0..d)];
 		PolDE:=subs(SubL,lhs(DE));
-		#the differential equation is not LEF
+		#the differential equation is not l.h.o
 		if degree(PolDE,x[d])>1 then
 			d:=d+1;
 			SubL:=[op(SubL),diff(y,t$d)=x[d]];
@@ -40,7 +39,7 @@ buildsystem:= proc(DE::`=`,
 
 mergesystem:= proc(L::list(`=`),
 		   V::list(anyfunc(name)),
-		   $)::`=`;
+		  $)::`=`;
 		local l::posint:=numelems(L), j::posint, Sys::list, vars::list, deriv::list, 
 		      n::posint, x::nothing, X::list, i::posint, Ind::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -75,6 +74,7 @@ SystoMinDiffPoly:= proc(f::list(algebraic),
                         z::anyfunc(name),
 			{ordering::identical(plex,lexdeg):=plex},
 			$)::algebraic;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		description     "Compute the minimal order non-linear DE of y=g(p,x)             "
 				"from the system {x'=f(p,x),y=g(p,x)}, for any parametric        "
 				"vector p, and a variable x=(x_1,...x_n), where                  "
@@ -200,16 +200,16 @@ ftogh:= proc(f::name,g::name,h::name,x::name,N::posint,$)::set(`=`); option reme
 			"        - the integer N (representing n from composeDalg)      "
 			"OUPUT: the list with the f[j] in terms of g[j] and h[j]        "
 			"       j=0..N                                                  ";
-	   #this procedure uses the method which solve the triangular linear system
-	   #of dimention N. It turns out to be more efficient in general compare to
-	   #the recursive approach, even though the latter is more effective 
-	   #for remembrance.
-	   Lderiv:= [seq(h[j]=diff(f(g(x)),[x$j]),j=0..N)];
-	   Lderiv:= map(r->subs([seq(diff(g(x),[x$j])=g[j],j=0..N)],r),Lderiv);
-	   Lderiv:= map(r->subs(g[0]=x,r),Lderiv);
-	   Lderiv:= map(r->convert(r,diff),Lderiv);
-	   Lderiv:= map(r->subs([seq(diff(f(x),[x$j])=f[j],j=0..N)],r),Lderiv);
-	   return SolveTools:-Linear(Lderiv,[seq(f[j],j=0..N)])
+		#this procedure uses the method which solve the triangular linear system
+		#of dimention N. It turns out to be more efficient in general compare to
+		#the recursive approach, even though the latter is more effective 
+		#for remembrance.
+		Lderiv:= [seq(h[j]=diff(f(g(x)),[x$j]),j=0..N)];
+		Lderiv:= map(r->subs([seq(diff(g(x),[x$j])=g[j],j=0..N)],r),Lderiv);
+		Lderiv:= map(r->subs(g[0]=x,r),Lderiv);
+		Lderiv:= map(r->convert(r,diff),Lderiv);
+		Lderiv:= map(r->subs([seq(diff(f(x),[x$j])=f[j],j=0..N)],r),Lderiv);
+		return SolveTools:-Linear(Lderiv,[seq(f[j],j=0..N)])
 	end proc:
 
 composeDalg:= proc(L::[`=`,`=`],
@@ -234,7 +234,7 @@ composeDalg:= proc(L::[`=`,`=`],
 		n:=PDEtools:-difforder(DE1,t);
 		#substitution to remove derivatives and t from the first differential equation (DE)
 		R:=subs(t=g[0],subs([seq(diff(V[1],[t$j])=f[j],j=0..n)],DE1));
-		#in case on non-LEF, one derivation is needed
+		#in case of non-l.h.o, one derivation is needed
 		if degree(R,f[n])>1 then
 			n:=n+1;
 			R:=subs(t=g[0],subs([seq(diff(V[1],[t$j])=f[j],j=0..n)],diff(DE1,t)))
@@ -262,8 +262,8 @@ unaryDalg:= proc(DE::`=`,
 		z::name=ratpoly,
 		{ordering::identical(plex,lexdeg):=plex},
 		$)::`=`;
-		local t::name:=op(y),var::name:=op(0,y),dvar::name=lhs(z),
-		      r::ratpoly:=rhs(z),eq::algebraic,j::nonnegint,Sys::list,x::nothing;
+		local t::name:=op(y),var::name:=op(0,y),dvar::name:=lhs(z),
+		      r::ratpoly:=rhs(z),Sys::list,x::nothing;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		description "Compute a differential equation for                                   "
 		            "a rational expression of a D-algebraic function from a                "
@@ -273,28 +273,17 @@ unaryDalg:= proc(DE::`=`,
 			    "	    - an equation h=r(f) (a rational expression in f)              "
 			    "	      h is the name for the dependent variable in the output.      "
 			    "OUPUT: a differential equation satisfied by r(f)                      ";
-		var:=op(0,y);
-		dvar:=lhs(z);
-		r:=normal(rhs(z));
-		#Simple case: y appears linearly in r(y)
-		if degree(numer(r),var)<=1 and degree(denom(r),var)<=1 then
-			eq:=subs(dvar=dvar(t),solve(dvar-r,var));
-			eq:=eval(lhs(DE) - rhs(DE), y=eq);
-			eq:=numer(normal(eq));
-			return collect(eq,[seq(diff(dvar(t),[t$j]),
-			       j=0..PDEtools:-difforder(DE,t))],'distributed')=0
-		end if;
-		#General case
 		#build the system using buildsystem
-		Sys:=buildsystem(lhs(DE) - rhs(DE)=0,y,x);
+		Sys:=NLDE_nlho:-buildsystem(lhs(DE) - rhs(DE)=0,y,x);
 		#use SystoMinDiffPoly to return the desired output
-		return SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1],r),Sys[2],dvar(t),':-ordering'=ordering)
+		return NLDE_nlho:-SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1][1],r),
+		                          Sys[2],dvar(t),':-ordering'=ordering)
 	end proc:
 	
 arithmeticDalg:=proc(L::list(`=`),
 		     V::list(anyfunc(name)),
 		     z::name=ratpoly,
-			 {ordering::identical(plex,lexdeg):=plex},
+		    {ordering::identical(plex,lexdeg):=plex},
 		    $)::`=`;
 		local t:=op(1,V[1]),DEs::list(`=`),Sys::list,j::posint,subV::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -322,6 +311,250 @@ arithmeticDalg:=proc(L::list(`=`),
 		#use SystoMinDiffPoly to return the desired output
 		return SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=ordering)
 	end proc:
+	
+diffDalg :=proc(DE::`=`,
+		 y::anyfunc(name),
+		 n::posint:=1,
+		{ordering::identical(plex,lexdeg):=plex},
+		$)::`=`;
+		local t::name:=op(y),var::name:=op(0,y),
+		      d::nonnegint,j::nonnegint,p,q,R,V;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		description "Compute a differential equation for                                   "
+		            "the derivative of a D-algebraic function from a                       "
+			    "differential equation that it satisfies.                              "
+			    "INPUT: - a differential equation                                      "
+			    "       - its dependent variable, say f(t)                             "
+			    "	    - h(t) representing diff(f(t),t)                               "
+			    "OUPUT: a differential equation satisfied by r(f)                      ";
+		if n=1 then	    
+			p:=lhs(DE)-rhs(DE);
+			d:=PDEtools:-difforder(p,t);
+			q:=diff(p,t);
+			p:=subs([seq(diff(var(t),[t$j])=var[j],j=0..d)],p);
+			q:=subs([seq(diff(var(t),[t$j])=var[j],j=0..d+1)],q);
+			R:=resultant(p,q,var[0]);
+			if type(R,`+`) then
+				return subs([seq(var[j]=diff(var(t),[t$(j-1)]),j=1..d+1)],R)=0
+			elif type(R,`*`) then
+				R:=[select(has,R,var[d+1])];
+				V:=[seq(var[j],j=0..d+1)];
+				R:=sort(R,(a,b)->degree(a,V)<=degree(b,V));
+				return subs([seq(var[j]=diff(var(t),[t$(j-1)]),j=1..d+1)],R[1])=0
+			else
+				return subs([seq(var[j]=diff(var(t),[t$(j-1)]),j=1..d+1)],R)=0
+			end if
+		else
+			return diffDalg(diffDalg(DE,y,n-1),y,1)
+		end if
+	end proc:
+
+ftogx:= proc(f::name,g::name,x::name,N::posint,$)::set(`=`); option remember;
+	   local j::nonnegint,Lderiv::list(algebraic);
+	   option `Copyright (c) 2022 Bertrand Teguia T.`;
+	   description  "subprocedure of invDalg for expressing the derivatives of f    "
+			"in terms of those of g and y                                   "
+			"INPUT:  - the name for g                                       "
+			"        - the name for t (always use with x for remembrance)   "
+			"        - the integer N (representing n from invDalg)          "
+			"OUPUT: the list with the f[j] in terms of g[j] and x           "
+			"       j=0..N                                                  ";
+		#this procedure uses the method which solve the triangular linear system
+		#of dimention N. It turns out to be more efficient in general compare to
+		#the recursive approach, even though the latter is more effective 
+		#for remembrance.
+		Lderiv:= [seq(diff(x,[x$j])=diff(f(g(x)),[x$j]),j=0..N)];
+		Lderiv:= map(r->subs([seq(diff(g(x),[x$j])=g[j],j=0..N)],r),Lderiv);
+		Lderiv:= map(r->subs(g[0]=x,r),Lderiv);
+		Lderiv:= map(r->convert(r,diff),Lderiv);
+		Lderiv:= map(r->subs([seq(diff(f(x),[x$j])=f[j],j=0..N)],r),Lderiv);
+		return SolveTools:-Linear(Lderiv,[seq(f[j],j=0..N)])
+	end proc:
+
+invDalg:= proc(DE::`=`,
+		y::anyfunc(name),
+	        z::anyfunc(name),
+	       $)::`=`;
+		local t::name:=op(y),n::posint,fgx::set(`=`),R::algebraic,
+		      f::nothing,x::nothing,g::nothing,j::nonnegint,DE1::`=`;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		description "inverse a D-algebraic function from its differential        "
+			    "equation in the dependent variable y(t)                     "
+			    "INPUT: - a differential equation DE(y(t))                   "
+			    "       - the dependent variable y(t)                        "
+			    "	    - the dependent variable of the output z(t)          "
+			    "OUPUT: a differential equations for the inverse f^{-1}(t)   ";
+		DE1:=lhs(DE)-rhs(DE);
+		n:=PDEtools:-difforder(DE1,t);
+		#main computation: linear algebra (see ftogx)
+		fgx:=subs(x=t,ftogx(f,g,x,n));
+		#substitution to remove derivatives and t from DE1
+		R:=subs(t=g[0],subs([seq(diff(y,[t$j])=f[j],j=0..n)],DE1));
+		#the elimination of y
+		R:=numer(normal(subs(fgx,R)));
+		R:=collect(R,[seq(g[j],j=0..n)],'distributed');
+		#Return the numerator of R after substitution
+		R:=subs([seq(g[j]=diff(z,[t$j]),j=0..n)],R);
+		return R=0
+	end proc:
+	
+	#submodule used to overcome the non-l.h.o situation in the unary case
+	#This generalizes to the general computation (proof to be done)
+	#However, generally the minimal ADE in the non-l.h.o case is not "good-looking"
+	#Hence the reason for not using it in general.
+	NLDE_nlho:= module()
+
+	option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
+
+	export buildsystem, SystoMinDiffPoly;
+
+	local mergesystem;
+
+
+	buildsystem:= proc(DE::`=`,
+			   y::anyfunc(name),
+			   x::name,
+			   $)::list(`=`);
+			local  t::name, r::posint, SubL::list, PolDE::polynom, d::posint, j::nonnegint;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			description     "Build a dynamical system (or model) from a differential equation. "
+					"If the differential equation is not l.h.o, its derivatives is used. "
+					"INPUT: -A differential equation DE,                               "
+					"       -its dependent variable like y(t)                          "
+					"	-a name x for the variable of the system                   "
+					"OUPUT: A list of two lists:                                       "
+					"       - the list of derivatives of the variables of the system   "
+					"         in in terms of these variables                           " 
+					"	- the variables of the system                              ";
+			t:=op(y);
+			r:=PDEtools:-difforder(DE,t);
+			#variables of substitution for the model, the input x with indices
+			SubL:=[seq(diff(y,[t$j])=x[j],j=0..r)];
+			PolDE:=subs(SubL,lhs(DE));
+			d:=degree(PolDE,x[r]);
+			#the differential equation is not l.h.o
+			if d>1 then
+				PolDE:=subs(x[r]^d=x[r],PolDE);
+				return [[seq(x[j],j=1..(r-1)),solve(PolDE,x[r])],[seq([x[j],1],j=0..(r-2)),[x[r-1],d]]]
+			else
+				return [[seq(x[j],j=1..(r-1)),solve(PolDE,x[r])],[seq([x[j],1],j=0..(r-1))]]
+			end if	
+		end proc:
+
+	mergesystem:= proc(L::list(`=`),
+			   V::list(anyfunc(name)),
+			   $)::`=`;
+			local l::posint:=numelems(L), j::posint, Sys::list, vars::list, deriv::list, 
+			      n::posint, x::nothing, X::list, i::posint, Ind::list;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			description     "Merge the dynamical systems of a list of differential equations. "
+					"INPUT: -a list of differential equations,                        "
+					"       -their dependent variable like y(t)                       "
+					"OUPUT: A list of three lists:                                    "
+					"       - the list of derivatives with the variables of           " 
+					"         the new system                                          "
+					"	- the list of variables representing the solutions        "
+					"	  of the input equations                                  "
+					"	- the variables of the system                             ";
+			Sys:=[seq(buildsystem(L[j],V[j],cat(x,j)),j=1..l)];
+			vars:=map(r->op(r[2]),Sys);
+			deriv:=map(r->op(r[1]),Sys);
+			n:=numelems(vars);
+			X:=[seq(vars[j][1]=x[j],j=1..n)];
+			#indices of the variables representing the solutions of the input DEs
+			Ind:=[seq(1+add(numelems(Sys[i][2]),i=1..(j-1)),j=1..l)];
+			return [subs(X,deriv),map(r->x[r],Ind),subs(X,vars)]
+		end proc:
+
+
+	SystoMinDiffPoly:= proc(f::list(algebraic),
+				g::algebraic,
+				X::Or(list,set),
+				z::anyfunc(name),
+				{ordering::identical(plex,lexdeg):=plex},
+				$)::algebraic;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			description     "Compute the minimal order non-linear DE of y=g(p,x)             "
+					"from the system {x'=f(p,x),y=g(p,x)}, for any parametric        "
+					"vector p, and a variable x=(x_1,...x_n), where                  "
+					"f and g are rational functions in x_1,...,x_n                   "
+					"INPUT:  - the list of derivatives of the variables of the system"
+					"          in in terms of them.                                  "
+					"        - the rational expession representing g                 "
+					"	 - the list of variables of the system                	 "
+					"        - the dependent variable (like y(t)) for the            "
+					"          output differential equation                          "
+					"OUPUT: a differential equations for g                           ";
+			local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,nlho_pow,t,DE,Sub:=[],allvars,yvars,ord,j,k,y,alpha;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			t:=op(1,z);
+			y:=op(0,z);
+			alpha:=indets([f,g]) minus {op(map(x-x[1],X))};
+			n:=numelems(X);
+			F:=normal(f);
+			q1:=mul(map(denom,F));
+			G:=normal(g);
+			q2:=denom(G);
+			#least common multiple of the denominators of the system
+			Q:=lcm(q1,q2);
+			#to differentiate, the variables should be functions of the 
+			#independent variable t
+			Xt:=map(x->x[1]=x[1](t),X);
+			Q:=subs(Xt,Q);
+			F:=subs(Xt,F);
+			G:=subs(Xt,G);
+			Xt:=map(rhs,Xt);
+			nlho_pow:=map(x->x[2],X);
+			J1:=[seq(Q*diff(Xt[j],t)^nlho_pow[j]-normal(Q*F[j]),j=1..n)];
+			#differentiating n-1 times the polynomials Q*x'-Q*f
+			for j to n do:
+				J1:=[op(J1),seq(diff(J1[j],t$k),k=1..(n-1))]
+			end do;
+			#differentiating n times the polynomials Q*y - Q*g
+			J2:=[seq(diff(Q*y(t)-normal(Q*G),[t$j]),j=0..n)];
+			J:=[op(J1),op(J2)];
+			#build the list of substitution to see derivatives as variables
+			for j to n do:
+				Sub:=[op(Sub),seq(diff(Xt[j],[t$k])=x[j,k],k=0..n)]
+			end do;
+			if ordering=plex then
+				#elimination and saturation with Groebner bases
+				#w.r.t. pure lex monomial ordering
+				Sub:=[op(Sub),seq(diff(y(t),[t$j])=y[j],j=0..n)];
+				allvars:=ListTools:-Reverse(map(rhs,Sub));
+				yvars:=select(has,allvars,y);
+				allvars:=allvars[numelems(yvars)+1..-1];
+				J:=PolynomialIdeals:-PolynomialIdeal(subs(Sub,J),parameters=alpha);
+				J:=PolynomialIdeals:-Saturate(J,subs(Sub,Q));
+				J:=Groebner:-Basis(J,plex(op(allvars),op(yvars)));
+				J:=remove(has,J,allvars)
+			else
+				#elimination and saturation with Groebner bases
+				#w.r.t. lexdeg elimination ordering
+				Sub:={op(Sub),seq(diff(y(t),[t$j])=y[j],j=0..n)};
+				J:=PolynomialIdeals:-PolynomialIdeal(subs(Sub,J),parameters=alpha);
+				J:=PolynomialIdeals:-Saturate(J,subs(Sub,Q));
+				yvars:=select(has,map(rhs,Sub),y);
+				J:=PolynomialIdeals:-EliminationIdeal(J,yvars);
+				J:=select(type,convert(J,list),polynom)
+			end if;
+			#Taking a diff polynomial of minimal total degree
+			# among those of the minimal order
+			J:=map(de->collect(de,[seq(y[j],j=0..n)],'distributed'),J);
+			Sub:=select(has,map(e->rhs(e)=lhs(e),Sub),y);
+			J:=map(de->subs(Sub,de),J);
+			#order
+			ord:=min(map(de->PDEtools:-difforder(de,t),J));
+			DE:=select(de->PDEtools:-difforder(de,t)=ord,J);
+			Sub:=map(e->rhs(e)=lhs(e),Sub);
+			DE:=map(de->subs(Sub,de),DE);
+			#degree
+			DE:=sort(DE,(a,b)->degree(a,yvars)<=degree(b,yvars));
+			DE:=DE[1];
+			Sub:=map(e->rhs(e)=lhs(e),Sub);
+			return subs(Sub,DE)=0
+		end proc:
+	end module:
 
 end module:
 
