@@ -2,7 +2,7 @@ NLDE:= module()
 
 option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
 
-export unaryDalg, diffDalg, invDalg, SystoMinDiffPoly, composeDalg, arithmeticDalg;
+export unaryDalg, diffDalg, invDalg, SystoMinDiffPoly, composeDalg, arithmeticDalg, AnsatzDalg;
 
 local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho;
 
@@ -12,15 +12,15 @@ buildsystem:= proc(DE::`=`,
 		   $)::list(`=`);
 		local  t::name, d::posint, SubL::list, PolDE::polynom, j::nonnegint;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		description     "Build a dynamical system (or model) from a differential equation. "
-				"If the differential equation is not l.h.o, its derivatives is used. "
-				"INPUT: -A differential equation DE,                               "
-				"       -its dependent variable like y(t)                          "
-				"	-a name x for the variable of the system                   "
-				"OUPUT: A list of two lists:                                       "
-				"       - the list of derivatives of the variables of the system   "
-				"         in in terms of these variables                           " 
-				"	- the variables of the system                              ";
+		description     "Build a dynamical system (or model) from a differential equation.    "
+				"If the differential equation is not l.h.o, its derivatives is used.  "
+				"INPUT: -A differential equation DE,                                  "
+				"       -its dependent variable like y(t)                             "
+				"	-a name x for the variable of the system                      "
+				"OUPUT: A list of two lists:                                          "
+				"       - the list of derivatives of the variables of the system      "
+				"         in in terms of these variables                              " 
+				"	- the variables of the system                                 ";
 		t:=op(y);
 		d:=PDEtools:-difforder(DE,t);
 		#variables of substitution for the model, the input x with indices
@@ -283,7 +283,9 @@ unaryDalg:= proc(DE::`=`,
 arithmeticDalg:=proc(L::list(`=`),
 		     V::list(anyfunc(name)),
 		     z::name=ratpoly,
-		    {ordering::identical(plex,lexdeg):=plex},
+		    {ordering::identical(plex,lexdeg):=plex,
+		    lho::truefalse:=true,
+		    lhoplex::truefalse:=false},
 		    $)::`=`;
 		local t:=op(1,V[1]),DEs::list(`=`),Sys::list,j::posint,subV::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -304,12 +306,20 @@ arithmeticDalg:=proc(L::list(`=`),
 		end if;
 		DEs:=map(r->lhs(r) - rhs(r)=0,L);
 		#build the systems and merge them using mergesystem
-		Sys:=mergesystem(DEs,V);
+		Sys:=ifelse(lho,mergesystem(DEs,V),NLDE_nlho:-mergesystem(DEs,V));
 		#prepare the list for the change of variables 
 		#in r according to Sys
 		subV:=[seq(op(0,V[j])=Sys[2][j],j=1..numelems(V))];
 		#use SystoMinDiffPoly to return the desired output
-		return SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=ordering)
+		if lho then
+			return SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=ordering)
+		else
+			if lhoplex then 
+				return NLDE_nlho:-SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=plex)
+			else
+				return NLDE_nlho:-SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=lexdeg)
+			end if
+		end if
 	end proc:
 	
 diffDalg :=proc(DE::`=`,
@@ -319,14 +329,13 @@ diffDalg :=proc(DE::`=`,
 		$)::`=`;
 		local t::name:=op(y),var::name:=op(0,y),
 		      d::nonnegint,j::nonnegint,p,q,R,V;
-		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		option `Copyright (c) 2023 Bertrand Teguia T.`;
 		description "Compute a differential equation for                                   "
 		            "the derivative of a D-algebraic function from a                       "
 			    "differential equation that it satisfies.                              "
 			    "INPUT: - a differential equation                                      "
 			    "       - its dependent variable, say f(t)                             "
-			    "	    - h(t) representing diff(f(t),t)                               "
-			    "OUPUT: a differential equation satisfied by r(f)                      ";
+			    "OUPUT: a differential equation satisfied by diff(f(t),t)              ";
 		if n=1 then	    
 			p:=lhs(DE)-rhs(DE);
 			d:=PDEtools:-difforder(p,t);
@@ -345,13 +354,13 @@ diffDalg :=proc(DE::`=`,
 				return subs([seq(var[j]=diff(var(t),[t$(j-1)]),j=1..d+1)],R)=0
 			end if
 		else
-			return diffDalg(diffDalg(DE,y,n-1),y,1)
+			return diffDalg(diffDalg(DE,y,n-1),y)
 		end if
 	end proc:
 
 ftogx:= proc(f::name,g::name,x::name,N::posint,$)::set(`=`); option remember;
 	   local j::nonnegint,Lderiv::list(algebraic);
-	   option `Copyright (c) 2022 Bertrand Teguia T.`;
+	   option `Copyright (c) 2023 Bertrand Teguia T.`;
 	   description  "subprocedure of invDalg for expressing the derivatives of f    "
 			"in terms of those of g and y                                   "
 			"INPUT:  - the name for g                                       "
@@ -377,7 +386,7 @@ invDalg:= proc(DE::`=`,
 	       $)::`=`;
 		local t::name:=op(y),n::posint,fgx::set(`=`),R::algebraic,
 		      f::nothing,x::nothing,g::nothing,j::nonnegint,DE1::`=`;
-		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		option `Copyright (c) 2023 Bertrand Teguia T.`;
 		description "inverse a D-algebraic function from its differential        "
 			    "equation in the dependent variable y(t)                     "
 			    "INPUT: - a differential equation DE(y(t))                   "
@@ -404,11 +413,9 @@ invDalg:= proc(DE::`=`,
 	#Hence the reason for not using it in general.
 	NLDE_nlho:= module()
 
-	option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
+	option `Copyright (c) 2023 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
 
-	export buildsystem, SystoMinDiffPoly;
-
-	local mergesystem;
+	export buildsystem, mergesystem, SystoMinDiffPoly;
 
 
 	buildsystem:= proc(DE::`=`,
@@ -416,16 +423,8 @@ invDalg:= proc(DE::`=`,
 			   x::name,
 			   $)::list(`=`);
 			local  t::name, r::posint, SubL::list, PolDE::polynom, d::posint, j::nonnegint;
-			option `Copyright (c) 2022 Bertrand Teguia T.`;
-			description     "Build a dynamical system (or model) from a differential equation. "
-					"If the differential equation is not l.h.o, its derivatives is used. "
-					"INPUT: -A differential equation DE,                               "
-					"       -its dependent variable like y(t)                          "
-					"	-a name x for the variable of the system                   "
-					"OUPUT: A list of two lists:                                       "
-					"       - the list of derivatives of the variables of the system   "
-					"         in in terms of these variables                           " 
-					"	- the variables of the system                              ";
+			option `Copyright (c) 2023 Bertrand Teguia T.`;
+			description     "The non-lho anologue of buildsystem";
 			t:=op(y);
 			r:=PDEtools:-difforder(DE,t);
 			#variables of substitution for the model, the input x with indices
@@ -446,16 +445,8 @@ invDalg:= proc(DE::`=`,
 			   $)::`=`;
 			local l::posint:=numelems(L), j::posint, Sys::list, vars::list, deriv::list, 
 			      n::posint, x::nothing, X::list, i::posint, Ind::list;
-			option `Copyright (c) 2022 Bertrand Teguia T.`;
-			description     "Merge the dynamical systems of a list of differential equations. "
-					"INPUT: -a list of differential equations,                        "
-					"       -their dependent variable like y(t)                       "
-					"OUPUT: A list of three lists:                                    "
-					"       - the list of derivatives with the variables of           " 
-					"         the new system                                          "
-					"	- the list of variables representing the solutions        "
-					"	  of the input equations                                  "
-					"	- the variables of the system                             ";
+			option `Copyright (c) 2023 Bertrand Teguia T.`;
+			description     "The non-lho analogue of mergesystem";
 			Sys:=[seq(buildsystem(L[j],V[j],cat(x,j)),j=1..l)];
 			vars:=map(r->op(r[2]),Sys);
 			deriv:=map(r->op(r[1]),Sys);
@@ -473,20 +464,9 @@ invDalg:= proc(DE::`=`,
 				z::anyfunc(name),
 				{ordering::identical(plex,lexdeg):=plex},
 				$)::algebraic;
-			option `Copyright (c) 2022 Bertrand Teguia T.`;
-			description     "Compute the minimal order non-linear DE of y=g(p,x)             "
-					"from the system {x'=f(p,x),y=g(p,x)}, for any parametric        "
-					"vector p, and a variable x=(x_1,...x_n), where                  "
-					"f and g are rational functions in x_1,...,x_n                   "
-					"INPUT:  - the list of derivatives of the variables of the system"
-					"          in in terms of them.                                  "
-					"        - the rational expession representing g                 "
-					"	 - the list of variables of the system                	 "
-					"        - the dependent variable (like y(t)) for the            "
-					"          output differential equation                          "
-					"OUPUT: a differential equations for g                           ";
+			option `Copyright (c) 2023 Bertrand Teguia T.`;
+			description     "The non-lho analogue of NLDE:-SystoMinDiffPoly";
 			local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,nlho_pow,t,DE,Sub:=[],allvars,yvars,ord,j,k,y,alpha;
-			option `Copyright (c) 2022 Bertrand Teguia T.`;
 			t:=op(1,z);
 			y:=op(0,z);
 			alpha:=indets([f,g]) minus {op(map(x-x[1],X))};
@@ -553,8 +533,231 @@ invDalg:= proc(DE::`=`,
 			DE:=DE[1];
 			Sub:=map(e->rhs(e)=lhs(e),Sub);
 			return subs(Sub,DE)=0
+		end proc:	
+	
+	end module: #end NLDE_nlho
+	
+	AnsatzDalg:= module()
+
+	option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
+
+	export deltakdiff, unaryDeltak, arithmeticDeltak;
+
+	local buildsystem, mergesystem, ComputDegkDE, DegreekDE, startkorder, ordertoktuple;
+
+
+	unaryDeltak:= proc(DE::`=`,
+			    y::anyfunc(name),
+			    z::name=algebraic,
+			    {degreeDE::posint:=2,
+			    deorder::posint:=10},
+			    $)::`=`;
+			local t::name:=op(y),start::posint,Sys::list,x::nothing,var::name,subvars::list,SubL::list,j::posint;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			start:=PDEtools:-difforder(DE,t);
+			Sys:=buildsystem(lhs(DE) - rhs(DE)=0,y,x);
+			var:=op(0,y);
+			subvars:=map(r->r=r(t),Sys[2]);
+			Sys:=subs(subvars,Sys);
+			SubL:=[seq(diff(Sys[2][j],t)=Sys[1][j],j=1..numelems(Sys[1]))];
+			DegreekDE(subs(var=Sys[2][1],normal(rhs(z))),lhs(z)(t),SubL,maxdeorder=deorder,
+				  ':-degreeDE'=degreeDE,startfromord=start)
 		end proc:
-	end module:
+
+	arithmeticDeltak:=proc(L::list(`=`),
+			       V::list(anyfunc(name)),
+			       z::name=ratpoly,
+			       {degreeDE::posint:=2,
+			       deorder::posint:=10},
+			       $)::`=`;
+			local t::name:=op(1,V[1]), start::posint, DEs::list(`=`), 
+			      j::posint, Sys::list, subvars::list, SubL::list, subV::list;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			description "Ansatz method for the arithmetic of D-algebraic functions ";
+			if numelems(L)=1 then
+				return L
+			end if;
+			start:=min(map(r->PDEtools:-difforder(r,t),L));
+			DEs:=map(r->lhs(r) - rhs(r)=0,L);
+			Sys:=mergesystem(DEs,V);
+			subvars:=map(r->r=r(t),Sys[3]);
+			Sys:=subs(subvars,Sys);
+			SubL:=[seq(diff(Sys[3][j],t)=Sys[1][j],j=1..numelems(Sys[1]))];
+			subV:=[seq(op(0,V[j])=Sys[2][j],j=1..numelems(V))];
+			return DegreekDE(subs(subV,rhs(z)),lhs(z)(t),SubL,
+				maxdeorder=deorder,':-degreeDE'=degreeDE,startfromord=start)
+		end proc:
+
+	buildsystem:= proc(DE::`=`,
+			    y::anyfunc(name),
+			    x::name,
+			   $)::list(`=`);
+			local d::posint, t::name, SubL::list, PolDE::polynom, Xd, j::posint;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			t:=op(y);
+			d:=PDEtools:-difforder(DE,t);
+			SubL:=[seq(diff(y,[t$j])=x[j],j=0..d)];
+			PolDE:=subs(SubL,lhs(DE));
+			if degree(PolDE,x[d])>1 then
+				Xd:=SolveTools:-AbstractRootOfSolution([PolDE],[x[d]]);
+				return [[seq(x[j],j=1..(d-1)),rhs(op(Xd))],[seq(x[j],j=0..(d-1))]]
+			else
+				return [[seq(x[j],j=1..(d-1)),solve(PolDE,x[d])],[seq(x[j],j=0..(d-1))]]
+			end if	
+		end proc:
+
+	mergesystem:= proc(L::list(`=`),
+			   V::list(anyfunc(name)),
+			  $)::`=`;
+			local l::posint:=numelems(L), j::posint, Sys::list, vars::list, deriv::list, 
+			      n::posint, x::nothing, X::list, i::posint, Ind::list;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			Sys:=[seq(buildsystem(L[j],V[j],cat(x,j)),j=1..l)];
+			vars:=map(r->op(r[2]),Sys);
+			deriv:=map(r->op(r[1]),Sys);
+			n:=numelems(vars);
+			X:=[seq(vars[j]=x[j],j=1..n)];
+			Ind:=[seq(1+add(numelems(Sys[i][2]),i=1..(j-1)),j=1..l)];
+			[subs(X,deriv),map(r->x[r],Ind),map(rhs,X)]
+		end proc:
+		
+	ComputDegkDE := proc(f::algebraic,z::name,k::posint,degkNmax::posint,Subdiff::list(`=`),startfromord::posint,$)
+			local a::nothing, A, N:=startfromord, Eq, n, S, Sumds, nisol, j, tmp, rmS, Eqs, s, factSumds, polfact, Coef:=[], i;		
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			description "Computational part of DegreekDE";
+			while PDEtools:-difforder(deltakdiff(a(z),z,k,N))<=degkNmax and Coef=[] do
+				A:=[seq(a[i],i=0..N-1)];
+				Eq:=deltakdiff(f,z,k,N)+add(A[i+1]*deltakdiff(f,z,k,i),i=0..N-1);
+				n:=PDEtools:-difforder(Eq,z);
+				to n do
+					Eq:=evala(eval(Eq,Subdiff))
+				end do;
+				Eq:=expand(numer(normal(Eq)));
+				if Eq=0 then
+					return [1], 1
+				end if;
+				S:=[op(Eq)];
+				Sumds:=[];
+				nisol:=true;
+				while S<>[] and nisol do
+					tmp:=S[1];
+					rmS:=[tmp];
+					if numelems(S)>1 then
+						for j from 2 to numelems(S) do
+							if type(normal(S[j]/S[1]), ratpoly(anything,z)) then
+								tmp:=normal(tmp+S[j]);
+								rmS:=[op(rmS),S[j]]
+							end if
+						end do
+					end if;
+					Sumds:=[op(Sumds),tmp];
+					nisol:=has(tmp,A);
+					S:=remove(member,S,rmS)
+				end do;
+				if nisol then 
+					Sumds:=map(r->numer(factor(r)),Sumds);
+					Eqs:=[];
+					for s in Sumds do
+						if type(s,polynom(anything,z)) then
+							if has(s,A) then
+								Eqs:=[op(Eqs),s]
+							end if
+						else
+							factSumds:=map(t->exp(t),[op(simplify(ln(s),ln,'symbolic'))]);
+							polfact:=select(type,factSumds,polynom(anything,z));
+							polfact:=select(has,polfact,A);
+							Eqs:=[op(Eqs),op(polfact)]
+						end if
+					end do;
+					Coef:= solve(Eqs,A);
+					if Coef<>[] then
+						Coef:=map(rhs,Coef[1]);
+						A:=map(r->r=1,A);
+						Coef:=factor(subs(A,Coef))
+					else
+						N:=N+1
+					end if
+				else 
+					N:=N+1
+				end if
+			end do;
+			Coef, N
+		end proc:
+
+	DegreekDE := proc(expr::algebraic,
+			F::anyfunc(name),
+			sublistdiff::list(`=`),
+			{maxdeorder::posint:=4,
+			degreeDE::posint:=2,
+			startfromord::posint:=1},
+			$)::Or(`=`,identical(FAIL));
+			local z, f, N, Coef, Dde, i;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			description "Compute a homogeneous degree k differential equation";
+			z:=op(1,F);
+			#some normalization on the input
+			f:=expand(evala(expr));
+			if f=0 then 
+				return F=0
+			end if;
+			#compute the coeficients of the DE sought
+			Coef,N:=ComputDegkDE(f,z,degreeDE,maxdeorder,sublistdiff,startkorder(startfromord,degreeDE,F,z));
+			#if there is a solution (Coef is not empty)
+			if Coef<>[] then
+				#clearing denominators
+				Dde:=lcm(op(denom(Coef)));
+				Coef:=map(r-> factor(normal(Dde*r)), Coef);
+				Coef:=[op(Coef),Dde];
+				return add(Coef[i+1]*deltakdiff(F,z,degreeDE,i),i=0..N)=0
+			else
+				userinfo(2,DegreekDE,printf("No homogeneous degree %d DE of order at most %d found\n", k, maxdeorder));
+				return FAIL
+			end if
+		end proc:
+
+	#minmaxorder ... ((n + 1)*(n^4 + 19*n^3 + 136*n^2 + 444*n + 600))/120
+
+	startkorder := proc(n::nonnegint,k,F,z,$)
+			local j:=k+1,df;
+			df:=deltakdiff(F,z,k,j);
+			while PDEtools:-difforder(df,z)<n do
+				j:=j+1;
+				df:=deltakdiff(F,z,k,j)
+			end do;
+			return j
+		end proc:
+
+	#Derivative operator used to compute product of k derivatives
+	#with respect to a certain 'natural ordering'
+	deltakdiff := proc(expr,z::name,k::posint:=2,n::nonnegint:=1,$)
+			local tuple;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			tuple:= select(type,ordertoktuple(k,n)-~1,nonnegint);
+			return mul(map(d-> diff(expr,[seq(z,1..d)]), tuple))
+		end proc:
+		
+		
+	#A bijection between a subset of N^k and N is used 
+	#to define the ordering for differential monomials
+	ordertoktuple := proc(k::posint,n::nonnegint) option remember;
+			local m, im, Tkn, j;
+			option `Copyright (c) 2022 Bertrand Teguia T.`;
+			if n=0 then 
+			    return [seq(0,j=1..k)]
+			else   
+			    Tkn:=ordertoktuple(k,n-1);
+			    m:=min(Tkn);
+			    im:=ListTools:-Search(m,Tkn);
+			    Tkn[im]:=m+1;
+			    if im=k then
+				return Tkn
+			    else
+				return [op(Tkn[1..im]),seq(0,j=im+1..k)]
+			    end if     
+			end if    
+		end proc:
+
+	end module: #end AnsatzDalg
 
 end module:
 
