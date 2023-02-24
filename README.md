@@ -7,6 +7,9 @@ The Jupyter file NLDE-examples.ipynb presents some examples of computations.
 The file NLDE.mla is a library produced by the source code in sourceNLDE.mpl.
 
 References:
+
 [1] D-algebraic functions. Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. https://arxiv.org/abs/2301.02512.
+
 [2] Dynamical systems for D-algebraic functions arithmetic. Bertrand Teguia Tabuguia... (link to come)
+
 [3] A Maple package for D-algebraic functions closure properties. Bertrand Teguia Tabuguia. (link to come) : some features using different strategies than those in [1] and [2] will be described here.
