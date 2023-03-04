@@ -6,4 +6,10 @@ The Jupyter file NLDE-examples.ipynb presents some examples of computations.
 
 The file NLDE.mla is a library produced by the source code in sourceNLDE.mpl.
 
-The accompanying paper, a joint work with Rida Ait El Manssour and Anna-Laura Sattelberger, is available at https://arxiv.org/abs/2301.02512.
+References:
+
+[1] D-algebraic functions. Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. https://arxiv.org/abs/2301.02512.
+
+[2] Dynamical systems for D-algebraic functions arithmetic. Bertrand Teguia Tabuguia... (link to come)
+
+[3] Operations for D-algebraic functions. Bertrand Teguia Tabuguia. (link to come) : some features using different strategies than those in [1] and [2] will be described here.
