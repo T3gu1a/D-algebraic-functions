@@ -2,12 +2,12 @@
 
 **NLDE** (NonLinear algebra and Differential Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. The package provide
 
-- unaryDalg: for computing ADEs for rational expressions of a single D-algebraic function using elimination with Groebner bases.
-- arithmeticDalg: for computing ADEs for rational expressions of D-algebraic functions using elimination with Groebner bases.
-- composeDalg: for computing ADEs for compositions of D-algebraic functions partly using elimination with Groebner bases.
-- diffDalg: for computing ADEs for derivatives of D-algebraic functions using recursive elimination with by computing resultant.
-- invDalg: for computing ADEs for functional inverses of D-algebraic functions by explicit construction.
-- AnsatzDalg: a subpackage currently containing unaryDeltak and arithmeticDeltak for doing the same computation as unaryDalg and arithmeticDalg by an algorithmic search based on linear algebra.
+- **unaryDalg**: for computing ADEs for rational expressions of a single D-algebraic function using elimination with Groebner bases.
+- **arithmeticDalg**: for computing ADEs for rational expressions of D-algebraic functions using elimination with Groebner bases.
+- **composeDalg**: for computing ADEs for compositions of D-algebraic functions partly using elimination with Groebner bases.
+- **diffDalg**: for computing ADEs for derivatives of D-algebraic functions using recursive elimination with by computing resultant.
+- **invDalg**: for computing ADEs for functional inverses of D-algebraic functions by explicit construction.
+- **AnsatzDalg**: a subpackage currently containing **unaryDeltak** and **arithmeticDeltak** for doing the same computation as _unaryDalg_ and _arithmeticDalg_ by an algorithmic search based on linear algebra.
 
 ## Installation
 
