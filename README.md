@@ -10,6 +10,6 @@ References:
 
 [1] D-algebraic functions. Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. https://arxiv.org/abs/2301.02512.
 
-[2] Dynamical systems for D-algebraic functions arithmetic. Bertrand Teguia Tabuguia... (link to come)
+[2] Arithmetic of multivariate D-algebraic functions. Bertrand Teguia Tabuguia... (link to come)
 
 [3] Operations for D-algebraic functions. Bertrand Teguia Tabuguia. (link to come) : some features using different strategies than those in [1] and [2] will be described here.
