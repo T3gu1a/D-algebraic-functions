@@ -2,7 +2,7 @@
 unaryDalg:= proc(DE::`=`,
 		y::anyfunc(name),
 		z::name=ratpoly,
-		{ordering::identical(plex,lexdeg):=plex},
+		{ordering::identical(plex,lexdeg):=lexdeg},
 		$)::`=`;
 		local t::name:=op(y),var::name:=op(0,y),dvar::name:=lhs(z),
 		      r::ratpoly:=rhs(z),Sys::list,x::nothing;

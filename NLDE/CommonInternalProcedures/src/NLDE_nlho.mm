@@ -25,8 +25,8 @@ buildsystem:= proc(DE::`=`,
 		d:=degree(PolDE,x[r]);
 		#the differential equation is not l.h.o
 		if d>1 then
-			PolDE:=subs(x[r]^d=x[r],PolDE);
-			return [[seq(x[j],j=1..(r-1)),solve(PolDE,x[r])],[seq([x[j],1],j=0..(r-2)),[x[r-1],d]]]
+			PolDE:=subs(x[r]^d=x[r+1],PolDE);
+			return [[seq(x[j],j=1..(r-1)),solve(PolDE,x[r+1])],[seq([x[j],1],j=0..(r-2)),[x[r-1],d,x[r]]]]
 		else
 			return [[seq(x[j],j=1..(r-1)),solve(PolDE,x[r])],[seq([x[j],1],j=0..(r-1))]]
 		end if	
@@ -78,6 +78,10 @@ SystoMinDiffPoly:= proc(f::list(algebraic),
 		Xt:=map(rhs,Xt);
 		nlho_pow:=map(x->x[2],X);
 		J1:=[seq(Q*diff(Xt[j],t)^nlho_pow[j]-normal(Q*F[j]),j=1..n)];
+		#non-lho case with many different degrees on the leader
+		if X[n][2]>1 then
+			J1[n]:=subs(X[n][3]=diff(Xt[n],t),J1[n])
+		end if;
 		#differentiating n-1 times the polynomials Q*x'-Q*f
 		for j to n do:
 			J1:=[op(J1),seq(diff(J1[j],t$k),k=1..(n-1))]
