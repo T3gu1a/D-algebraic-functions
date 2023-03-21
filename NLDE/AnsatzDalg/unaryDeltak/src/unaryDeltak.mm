@@ -16,7 +16,7 @@ unaryDeltak:= proc(DE::`=`,
 		Sys:=subs(subvars,Sys);
 		SubL:=[seq(diff(Sys[2][j],t)=Sys[1][j],j=1..numelems(Sys[1]))];
 		DegreekDE(subs(var=Sys[2][1],normal(rhs(z))),lhs(z)(t),SubL,
-			':-maxdeorder'=max(add(Ords),maxdeorder),
+			':-maxdeorder'=max(add(Ords)+start,maxdeorder),
 			':-degreeDE'=degreeDE,startfromord=start)
 	end proc:
 

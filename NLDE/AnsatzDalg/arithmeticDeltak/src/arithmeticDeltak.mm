@@ -22,6 +22,6 @@ arithmeticDeltak:=proc(L::list(`=`),
 		SubL:=[seq(diff(Sys[3][j],t)=Sys[1][j],j=1..numelems(Sys[1]))];
 		subV:=[seq(op(0,V[j])=Sys[2][j],j=1..numelems(V))];
 		return DegreekDE(subs(subV,rhs(z)),lhs(z)(t),SubL,
-			':-maxdeorder'=max(add(Ords),maxdeorder),
+			':-maxdeorder'=max(add(Ords)+start,maxdeorder),
 			':-degreeDE'=degreeDE,startfromord=start)
 	end proc:
