@@ -12,13 +12,15 @@
 ## Installation
 
 The easiest way to use **NLDE** in Maple is by putting the NLDE.mla in your working directory and include the lines
-`
+`restart`
+
   > restart;
 
   > libname:=currentdir(), libname:
 
   > with(NLDE)
-`
+  
+  
 at the beginning of your Maple worksheet (session). To avoid putting these three lines in all worksheets, one can read the help page of the libname command.
 
 ## Dependencies
