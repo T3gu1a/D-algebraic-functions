@@ -34,13 +34,13 @@ For Groebner bases computations the package relies on the following Maple packag
 
 ## Examples
 
-Some examples are given in _NLDE-examples.ipynb_.
+Some examples are presented in _NLDE-examples.ipynb_.
 
 ## References
 
-.. [D-algebraic functions](https://arxiv.org/abs/2301.02512) Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. (2023)
+1. [D-algebraic functions](https://arxiv.org/abs/2301.02512) Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. (2023)
 
-.. [Operations for D-algebraic functions] (link to come). Bertrand Teguia Tabuguia. (2023)
+2. [Operations for D-algebraic functions] (link to come). Bertrand Teguia Tabuguia. (2023)
 
-.. [linkToCome] Arithmetic of multivariate D-algebraic functions. ... and Bertrand Teguia Tabuguia. _Work in progress_.
+3. [linkToCome] Arithmetic of multivariate D-algebraic functions. ... and Bertrand Teguia Tabuguia. _Work in progress_.
 
