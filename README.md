@@ -29,7 +29,7 @@ For Groebner bases computations the package relies on the following Maple packag
 
 ## Author
 
-- [Bertrand Teguia Tabuguia](https://bertrandteguia.com), Max Planck Institute for Mathematics in the Sciences (2022-2023).
+- [Bertrand Teguia Tabuguia](https://bertrandteguia.com), Max Planck Institute for Mathematics in the Sciences (2022-present).
 - licence: GNU General Public Licence v3.0.
 
 ## Examples
