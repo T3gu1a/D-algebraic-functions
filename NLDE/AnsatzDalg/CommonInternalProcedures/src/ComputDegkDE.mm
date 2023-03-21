@@ -47,7 +47,7 @@ ComputDegkDE := proc(f::algebraic,z::name,k::posint,degkNmax::posint,Subdiff::li
 						Eqs:=[op(Eqs),op(polfact)]
 					end if
 				end do;
-				Coef:= solve(Eqs,A);
+				Coef:=[SolveTools:-Linear(Eqs,A)];
 				if Coef<>[] then
 					Coef:=map(rhs,Coef[1]);
 					A:=map(r->r=1,A);
