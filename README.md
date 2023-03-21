@@ -34,7 +34,7 @@ For Groebner bases computations the package relies on the following Maple packag
 
 ## Examples
 
-Some examples are presented in _NLDE-examples.ipynb_.
+Some examples are presented in Jypyter notebook file _NLDE-examples.ipynb_.
 
 ## References
 
