@@ -2,10 +2,11 @@ NLDE:= module()
 
 option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
 
-export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, AnsatzDalg, DDfiniteToDalg;
+export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, AnsatzDalg, DDfiniteToDalg, OrderDegreeADE;
 
 local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho;
 
+$include <NLDE/OrderDegreeADE/src/OrderDegreeADE.mm>
 $include <NLDE/CommonInternalProcedures/src/mergesystem.mm>
 $include <NLDE/SysToMinDiffPoly/src/SysToMinDiffPoly.mm>
 $include <NLDE/composeDalg/src/composeDalg.mm>
