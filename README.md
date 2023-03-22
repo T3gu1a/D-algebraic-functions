@@ -45,5 +45,5 @@ Some examples are presented in Jypyter notebook file _NLDE-examples.ipynb_.
 
 2. [Operations for D-algebraic functions] (link to come). Bertrand Teguia Tabuguia. (2023)
 
-3. [linkToCome] Arithmetic of multivariate D-algebraic functions. ... and Bertrand Teguia Tabuguia. _Work in progress_.
+3. [linkToCome] ODE systems of D-algebraic functions arithmetic. ... and Bertrand Teguia Tabuguia. _Work in progress_.
 
