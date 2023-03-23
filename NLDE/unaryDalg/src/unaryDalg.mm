@@ -17,7 +17,7 @@ unaryDalg:= proc(DE::`=`,
 			    "OUPUT: a differential equation satisfied by r(f)                      ";
 		#build the system using buildsystem
 		Sys:=NLDE_nlho:-buildsystem(lhs(DE) - rhs(DE)=0,y,x);
-		#use SystoMinDiffPoly to return the desired output
-		return NLDE_nlho:-SystoMinDiffPoly(Sys[1],subs(var=Sys[2][1][1],r),
+		#use SysToMinDiffPoly to return the desired output
+		return NLDE_nlho:-SysToMinDiffPoly(Sys[1],subs(var=Sys[2][1][1],r),
 		                          Sys[2],dvar(t),':-ordering'=ordering)
 	end proc:

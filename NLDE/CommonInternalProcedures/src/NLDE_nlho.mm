@@ -7,7 +7,7 @@ NLDE_nlho:= module()
 
 option `Copyright (c) 2023 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
 
-export buildsystem, mergesystem, SystoMinDiffPoly;
+export buildsystem, mergesystem, SysToMinDiffPoly;
 
 
 buildsystem:= proc(DE::`=`,
@@ -50,14 +50,14 @@ mergesystem:= proc(L::list(`=`),
 	end proc:
 
 
-SystoMinDiffPoly:= proc(f::list(algebraic),
+SysToMinDiffPoly:= proc(f::list(algebraic),
 			g::algebraic,
 			X::Or(list,set),
 			z::anyfunc(name),
 			{ordering::identical(plex,lexdeg):=plex},
 			$)::algebraic;
 		option `Copyright (c) 2023 Bertrand Teguia T.`;
-		description     "The non-lho analogue of NLDE:-SystoMinDiffPoly";
+		description     "The non-lho analogue of NLDE:-SysToMinDiffPoly";
 		local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,nlho_pow,t,DE,Sub:=[],allvars,yvars,ord,j,k,y,alpha;
 		t:=op(1,z);
 		y:=op(0,z);

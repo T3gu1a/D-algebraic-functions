@@ -40,8 +40,8 @@ composeDalg:= proc(L::[`=`,`=`],
 		R:=normal(subs(fgh,R));
 		#the system for h is easily obtained from R
 		Sysh:=[[seq(h[j],j=1..(n-1)),solve(R,h[n])],[seq(h[j],j=0..(n-1))]];
-		#use SystoMinDiffPoly to return the desired output
-		return SystoMinDiffPoly([op(Sys[1]),op(Sysh[1])],h[0],[op(Sys[2]),op(Sysh[2])],z,':-ordering'=ordering)
+		#use SysToMinDiffPoly to return the desired output
+		return SysToMinDiffPoly([op(Sys[1]),op(Sysh[1])],h[0],[op(Sys[2]),op(Sysh[2])],z,':-ordering'=ordering)
 	end proc:
 
 $include <NLDE/composeDalg/SubProcedures/src/subsgfurther.mm>

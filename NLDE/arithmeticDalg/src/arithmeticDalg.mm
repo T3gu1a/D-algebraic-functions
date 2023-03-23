@@ -29,14 +29,14 @@ arithmeticDalg:=proc(L::list(`=`),
 		#prepare the list for the change of variables 
 		#in r according to Sys
 		subV:=[seq(op(0,V[j])=Sys[2][j],j=1..numelems(V))];
-		#use SystoMinDiffPoly to return the desired output
+		#use SysToMinDiffPoly to return the desired output
 		if lho then
-			return SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=ordering)
+			return SysToMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=ordering)
 		else
 			if lhoplex then 
-				return NLDE_nlho:-SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=plex)
+				return NLDE_nlho:-SysToMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=plex)
 			else
-				return NLDE_nlho:-SystoMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=lexdeg)
+				return NLDE_nlho:-SysToMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=lexdeg)
 			end if
 		end if
 	end proc:

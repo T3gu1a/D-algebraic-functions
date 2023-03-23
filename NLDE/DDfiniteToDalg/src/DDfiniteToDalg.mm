@@ -17,6 +17,6 @@ DDfiniteToDalg:= proc(DE::`=`,y::anyfunc(name),
 		V:=[y,op(Lvars)];
 		Sys:=mergesystem(DEs,V);
 		subV:=[seq(op(0,Lvars[j])=Sys[2][j+1],j=1..numelems(Lvars))];
-		return SystoMinDiffPoly(subs(subV,Sys[1]),Sys[2][1],Sys[3],y,':-ordering'=ordering)
+		return SysToMinDiffPoly(subs(subV,Sys[1]),Sys[2][1],Sys[3],y,':-ordering'=ordering)
 	end proc:
 	
