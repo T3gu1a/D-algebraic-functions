@@ -40,9 +40,9 @@ For Groebner bases computations the package relies on the following Maple packag
 
 Documentation and examples are given at [NLDE documentation](https://T3gu1a.github.io/NLDEdoc/).
 
-## More examples
+## Examples in a Maple worksheet
 
-Some examples are presented in Jypyter notebook file _NLDE-examples.ipynb_.
+One can try the examples of the documentation in the Maple worksheet MapleWorksheet-NLDEdox-examples.mw.
 
 ## References
 
