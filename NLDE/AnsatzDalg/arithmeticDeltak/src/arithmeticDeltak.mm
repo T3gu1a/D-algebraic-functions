@@ -4,7 +4,7 @@ arithmeticDeltak:=proc(L::list(`=`),
 		       z::name=ratpoly,
 		       {degreeDE::posint:=2,
 		       startingorder::posint:=1,
-		       maxdeorder::posint:=1},
+		       maxdeorder::posint:=2},
 		       $)::`=`;
 		local t::name:=op(1,V[1]), start::posint, Ords::list(posint), DEs::list(`=`), 
 		      j::posint, Sys::list, subvars::list, SubL::list, subV::list;
@@ -22,6 +22,6 @@ arithmeticDeltak:=proc(L::list(`=`),
 		SubL:=[seq(diff(Sys[3][j],t)=Sys[1][j],j=1..numelems(Sys[1]))];
 		subV:=[seq(op(0,V[j])=Sys[2][j],j=1..numelems(V))];
 		return DegreekDE(subs(subV,rhs(z)),lhs(z)(t),SubL,
-			':-maxdeorder'=max(add(Ords)+start,maxdeorder),
+			':-maxdeorder'=max(maxdeorder,start),
 			':-degreeDE'=degreeDE,startfromord=start)
 	end proc:

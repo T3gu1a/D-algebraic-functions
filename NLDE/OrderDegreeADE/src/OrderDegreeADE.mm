@@ -11,7 +11,7 @@ OrderDegreeADE:= proc(ADE::`=`,
 		P:=subs([seq(diff(y,[x$j])=X[j],j=0..r)],P);
 		#convert P to the list of its monomials
 		#to avoid cancellation after the substitution (x=1)
-		L:=subs(x=1,convert(P,list));
+		L:=subs(x=1,convert(P+x,list));
 		d:=max(map(degree,L));
 		return [r,d]
 	end proc:
