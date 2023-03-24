@@ -49,7 +49,7 @@ ComputDegkDE := proc(f::algebraic,z::name,k::posint,degkNmax::posint,Subdiff::li
 				end do;
 				Coef:=[SolveTools:-Linear(Eqs,A)];
 				if Coef<>[] then
-					Coef:=map(rhs,Coef[1]);
+					Coef:=map(rhs,convert(Coef[1],list));
 					A:=map(r->r=1,A);
 					Coef:=factor(subs(A,Coef))
 				else
