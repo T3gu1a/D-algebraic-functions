@@ -38,7 +38,7 @@ For Groebner bases computations the package relies on the following Maple packag
 
 ## Documentation and Examples
 
-Documentation and examples are given at [NLDE documentation](https://T3gu1a.github.io/NLDEdoc/)
+Documentation and examples are given at [NLDE documentation](https://T3gu1a.github.io/NLDEdoc/).
 
 ## More examples
 
