@@ -24,8 +24,9 @@ The easiest way to use **NLDE** in Maple is by putting the NLDE.mla in your work
 ```
 at the beginning of your Maple worksheet (session). To avoid putting these three lines in all worksheets, one can read the help page of the libname command.
 
-## Dependencies
+## Requirements and Dependencies
 
+The package can be used with any recent version of Maple (from 2019 onward). 
 For Groebner bases computations the package relies on the following Maple packages:
 - Groebner
 - PolynomialIdeal
@@ -35,7 +36,11 @@ For Groebner bases computations the package relies on the following Maple packag
 - [Bertrand Teguia Tabuguia](https://bertrandteguia.com), Max Planck Institute for Mathematics in the Sciences (2022-present).
 - licence: GNU General Public Licence v3.0.
 
-## Examples
+## Documentation and Examples
+
+Documentation and examples are given at [NLDE documentation](https://T3gu1a.github.io/NLDEdoc/)
+
+## More examples
 
 Some examples are presented in Jypyter notebook file _NLDE-examples.ipynb_.
 
