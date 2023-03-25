@@ -14,7 +14,7 @@
 
 ## Installation
 
-The easiest way to use **NLDE** in Maple is by putting the NLDE.mla in your working directory and include the lines
+The easiest way to use **NLDE** in Maple is by putting the file NLDE.mla in your working directory and include the lines
 ```
   > restart;
 
