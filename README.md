@@ -22,7 +22,7 @@ The easiest way to use **NLDE** in Maple is by putting the NLDE.mla in your work
 
   > with(NLDE) 
 ```
-at the beginning of your Maple worksheet (session). To avoid putting these three lines in all worksheets, one can read the help page of the libname command.
+at the beginning of your Maple worksheet (session). To avoid putting these three lines in all worksheets, one can read the help page of the $\texttt{libname}$ command.
 
 ## Requirements and Dependencies
 
