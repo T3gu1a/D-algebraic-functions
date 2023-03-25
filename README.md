@@ -28,8 +28,8 @@ at the beginning of your Maple worksheet (session). To avoid putting these three
 
 The package can be used with any recent version of Maple (from 2019 onward). 
 For Groebner bases computations the package relies on the following Maple packages:
-- Groebner
-- PolynomialIdeal
+- $\texttt{Groebner}$
+- $\texttt{PolynomialIdeal}$
 
 ## Author
 
