@@ -404,4 +404,28 @@
 <Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
 </Input>
 </Group>
+<Group labelreference="L161" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Input><Text-field style="Text" layout="Normal"></Text-field><Text-field style="Text" layout="Normal"><Font size="18" bold="true">deltakdiff</Font></Text-field><Text-field style="Text" layout="Normal"></Text-field>
+</Input>
+</Group>
+<Group labelreference="L162" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
+<Group labelreference="L163" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal">seq(AnsatzDalg:-deltakdiff(F(x),x,2,j),j=0..10)</Text-field>
+</Input>
+</Group>
+<Group labelreference="L164" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal">seq(AnsatzDalg:-deltakdiff(F(x),x,3,j),j=0..10)</Text-field>
+</Input>
+</Group>
+<Group labelreference="L165" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal">seq(AnsatzDalg:-deltakdiff(F(x),x,4,j),j=0..10)</Text-field>
+</Input>
+</Group>
+<Group labelreference="L166" drawlabel="true" applyint="true" applyrational="true" applyexponent="false">
+<Input><Text-field prompt="&gt; " style="Maple Input" layout="Normal"></Text-field>
+</Input>
+</Group>
 </Worksheet>
