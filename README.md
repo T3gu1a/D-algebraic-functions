@@ -7,7 +7,7 @@
 - **composeDalg**: for computing ADEs for compositions of D-algebraic functions partly using elimination with Groebner bases.
 - **diffDalg**: for computing ADEs for derivatives of D-algebraic functions using recursive elimination with by computing resultant.
 - **invDalg**: for computing ADEs for functional inverses of D-algebraic functions by explicit construction.
-- **AnsatzDalg**: a subpackage currently containing **unaryDeltak** and **arithmeticDeltak** for doing the same computation as _unaryDalg_ and _arithmeticDalg_ by an algorithmic search based on linear algebra.
+- **AnsatzDalg**: a subpackage with main sub-procedures **unaryDeltak** and **arithmeticDeltak** for doing the same computation as _unaryDalg_ and _arithmeticDalg_ by an algorithmic search based on linear algebra.
 - **DDfiniteToDalg**: for converting a holonomic ODE into an ADE having the same solutions.
 - **SysToMinDiffPoly**: for computing input-output equation of dynamical systems.
 - **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
