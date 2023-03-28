@@ -46,7 +46,7 @@ One can try the examples of the documentation in the Maple worksheet MapleWorksh
 
 ## References
 
-1. [D-algebraic functions](https://arxiv.org/abs/2301.02512) Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. (2023)
+1. [D-algebraic functions](https://arxiv.org/abs/2301.02512). Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. (2023)
 
 2. [Operations for D-algebraic functions] (link to come. _Final edits_). Bertrand Teguia Tabuguia. (April 2023)
 
