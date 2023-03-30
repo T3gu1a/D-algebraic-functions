@@ -58,10 +58,11 @@ SysToMinDiffPoly:= proc(f::list(algebraic),
 			$)::algebraic;
 		option `Copyright (c) 2023 Bertrand Teguia T.`;
 		description     "The non-lho analogue of NLDE:-SysToMinDiffPoly";
-		local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,nlho_pow,t,DE,Sub:=[],allvars,yvars,ord,j,k,y,alpha;
+		local F,G,q1,q2,Q,Svars,J1,J2,J,n,Xt,nlho_pow,nlho_lead,
+		      t,DE,Sub:=[],allvars,yvars,ord,j,k,y,alpha;
 		t:=op(1,z);
 		y:=op(0,z);
-		alpha:=indets([f,g]) minus {op(map(x-x[1],X))};
+		alpha:=indets([f,g]) minus {op(map(x->x[1],X))};
 		n:=numelems(X);
 		F:=normal(f);
 		q1:=mul(map(denom,F));
@@ -79,8 +80,11 @@ SysToMinDiffPoly:= proc(f::list(algebraic),
 		nlho_pow:=map(x->x[2],X);
 		J1:=[seq(Q*diff(Xt[j],t)^nlho_pow[j]-normal(Q*F[j]),j=1..n)];
 		#non-lho case with many different degrees on the leader
-		if X[n][2]>1 then
-			J1[n]:=subs(X[n][3]=diff(Xt[n],t),J1[n])
+		nlho_lead:=select(v->numelems(v)=3,X);
+		if nlho_lead <> [] then
+			nlho_lead:=map(v->v[3]=diff(v[1](t),t),nlho_lead);
+			J1:=subs(nlho_lead,J1)
+			#J1[n]:=subs(X[n][3]=diff(Xt[n],t),J1[n])
 		end if;
 		#differentiating n-1 times the polynomials Q*x'-Q*f
 		for j to n do:
@@ -129,6 +133,6 @@ SysToMinDiffPoly:= proc(f::list(algebraic),
 		DE:=DE[1];
 		Sub:=map(e->rhs(e)=lhs(e),Sub);
 		return subs(Sub,DE)=0
-	end proc:	
+	end proc:
 
 end module: #end NLDE_nlho
