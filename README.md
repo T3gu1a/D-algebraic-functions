@@ -11,7 +11,7 @@
 - **DDfiniteToDalg**: for converting a holonomic ODE into an ADE having the same solutions.
 - **SysToMinDiffPoly**: for computing input-output equation of dynamical systems.
 - **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
-- **MultiDalg**: subpackage for multivariate the arithmetic of multivariate D-algebraic functions (almost ready!).
+- **MultiDalg**: subpackage for operations with multivariate D-algebraic functions. The command for arithmetic operations is almost complete! (April 2023).
 
 ## Installation
 
