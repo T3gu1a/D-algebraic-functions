@@ -1,6 +1,6 @@
 # D-algebraic functions in Maple
 
-**NLDE** (NonLinear algebra and Differential Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. The package provide
+**NLDE** (NonLinear algebra and Differential Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. The package provides:
 
 - **unaryDalg**: for computing ADEs for rational expressions of a single D-algebraic function using elimination with Groebner bases.
 - **arithmeticDalg**: for computing ADEs for rational expressions of D-algebraic functions using elimination with Groebner bases.
@@ -11,6 +11,7 @@
 - **DDfiniteToDalg**: for converting a holonomic ODE into an ADE having the same solutions.
 - **SysToMinDiffPoly**: for computing input-output equation of dynamical systems.
 - **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
+- **MultiDalg**: subpackage for multivariate the arithmetic of multivariate D-algebraic functions (almost ready!).
 
 ## Installation
 
