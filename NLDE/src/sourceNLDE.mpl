@@ -17,6 +17,7 @@ $include <NLDE/invDalg/src/invDalg.mm>
 $include <NLDE/DDfiniteToDalg/src/DDfiniteToDalg.mm>
 $include <NLDE/CommonInternalProcedures/src/NLDE_nlho.mm>
 $include <NLDE/AnsatzDalg/src/AnsatzDalg.mm>
+$include <NLDE/MultiDalg/src/MultiDalg.mm>
 
 end module:
 
