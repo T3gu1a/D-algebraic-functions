@@ -43,7 +43,7 @@ Documentation and examples are given at [NLDE documentation](https://T3gu1a.gith
 
 ## Examples in a Maple worksheet
 
-One can try the examples of the documentation in the Maple worksheet MapleWorksheet-NLDEdox-examples.mw.
+One can try the examples of the documentation in the Maple worksheet MapleWorksheet-NLDEdoc-examples.mw.
 
 ## References
 
