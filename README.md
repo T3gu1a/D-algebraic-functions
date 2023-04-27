@@ -43,7 +43,7 @@ Documentation and examples are given at [NLDE documentation](https://T3gu1a.gith
 
 ## Examples in a Maple worksheet
 
-One can try the examples of the documentation in the Maple worksheet MapleWorksheet-NLDEdox-examples.mw.
+One can try the examples of the documentation in the Maple worksheet MapleWorksheet-NLDEdoc-examples.mw.
 
 ## References
 
@@ -51,5 +51,5 @@ One can try the examples of the documentation in the Maple worksheet MapleWorksh
 
 2. [Operations for D-algebraic functions](https://arxiv.org/abs/2304.09675). Bertrand Teguia Tabuguia. April 2023.
 
-3. [Arithmetic of D-algebraic functions](https://) (link to come). ... and Bertrand Teguia Tabuguia. _Work in progress_. We investigate multivariate D-algebraic functions in more details here.
+3. [Arithmetic of D-algebraic functions](https://) (link to come). Bertrand Teguia Tabuguia. _Work in progress_. We investigate multivariate D-algebraic functions in more details here.
 
