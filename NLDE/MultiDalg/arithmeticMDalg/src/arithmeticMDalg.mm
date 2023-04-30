@@ -52,10 +52,16 @@ arithmeticMDalg := proc(L::list(`=`),
 		#elimination with Groebner basis
 		Sub:=[op(elimvars),op(ListTools:-MakeUnique(map(rhs,Sub)))];
 		J:=PolynomialIdeals:-PolynomialIdeal(P,parameters={op(indvars)} minus elimvars);
-		J:=Groebner:-Basis(J,plex(op(Sub)));
-		J:=remove(has,J,[op(elimvars),op(map(rhs,SubV))]);
+		if ordering = plex then
+			J:=Groebner:-Basis(J,plex(op(Sub)));
+			J:=remove(has,J,[op(elimvars),op(map(rhs,SubV))])
+		else
+			J:=PolynomialIdeals:-EliminationIdeal(J,{op(map(rhs,Subz))});
+			J:=select(type,convert(J,list),polynom);
+			J:=map(de->collect(de,map(rhs,Subz),'distributed'),J)
+		end if;
 		d:=d+1;
-		#if the elimination ideal is empty, repeat the computation with d+1
+		#if the elimination ideal is empty, repeat the computation with d+1,..,nu
 		while J=[] and d<=nu do:
 			E:=[op(E),seq(derivation(DEs[i],indvars,d),i=1..N)];
 			dm:=CantorSigma(CantorInvSigma(n,d-min(sigmaorders))+Nu);
@@ -65,8 +71,14 @@ arithmeticMDalg := proc(L::list(`=`),
 			P:=subs(Sub,E);
 			Sub:=[op(elimvars),op(ListTools:-MakeUnique(map(rhs,Sub)))];
 			J:=PolynomialIdeals:-PolynomialIdeal(P,parameters={op(indvars)} minus elimvars);
-			J:=Groebner:-Basis(J,plex(op(Sub)));
-			J:=remove(has,J,[op(elimvars),op(map(rhs,SubV))]);
+			if ordering = plex then
+				J:=Groebner:-Basis(J,plex(op(Sub)));
+				J:=remove(has,J,[op(elimvars),op(map(rhs,SubV))])
+			else
+				J:=PolynomialIdeals:-EliminationIdeal(J,{op(map(rhs,Subz))});
+				J:=select(type,convert(J,list),polynom);
+				J:=map(de->collect(de,map(rhs,Subz),'distributed'),J)
+			end if;
 			d:=d+1
 		end do;
 		#No ADE of order at most Nu or maxord (component wise) found if J=[]
@@ -90,4 +102,4 @@ arithmeticMDalg := proc(L::list(`=`),
 		J:=sort(J,(p1,p2)->degree(p1,map(rhs,Subz))<=degree(p2,map(rhs,Subz)));
 		J:=subs(backSubz,J);
 		return J[1]=0
-	end proc:
+	end proc:	
