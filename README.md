@@ -51,5 +51,5 @@ One can try the examples of the documentation in the Maple worksheet MapleWorksh
 
 2. [Operations for D-algebraic functions](https://arxiv.org/abs/2304.09675). Bertrand Teguia Tabuguia. April 2023.
 
-3. [Arithmetic of D-algebraic functions](https://arxiv.org/abs/2305.00702). Bertrand Teguia Tabuguia. May 2023. Completing the univariate setting and extending the computations to the multivariate case. Check it out!
+3. [Arithmetic of D-algebraic functions](https://arxiv.org/abs/2305.00702). Bertrand Teguia Tabuguia. May 2023.
 
