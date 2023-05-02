@@ -11,7 +11,7 @@
 - **DDfiniteToDalg**: for converting a holonomic ODE into an ADE having the same solutions.
 - **SysToMinDiffPoly**: for computing input-output equation of dynamical systems.
 - **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
-- **MultiDalg**: subpackage for operations with multivariate D-algebraic functions. The command for arithmetic operations is almost complete! (April 2023).
+- **MultiDalg**: subpackage for operations with multivariate D-algebraic functions. The command, **arithmeticMDalg**, for arithmetic operations is now available! (May 2023).
 
 ## Installation
 
@@ -51,5 +51,5 @@ One can try the examples of the documentation in the Maple worksheet MapleWorksh
 
 2. [Operations for D-algebraic functions](https://arxiv.org/abs/2304.09675). Bertrand Teguia Tabuguia. April 2023.
 
-3. [Arithmetic of D-algebraic functions](https://) (link to come). Bertrand Teguia Tabuguia. _Work in progress_. We investigate multivariate D-algebraic functions in more details here.
+3. [Arithmetic of D-algebraic functions](https://arxiv.org/abs/2305.00702). Bertrand Teguia Tabuguia. May 2023. Completing the univariate setting and extending the computations to the multivariate case. Check it out!
 
