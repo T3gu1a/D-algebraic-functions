@@ -8,7 +8,7 @@
 - **diffDalg**: for computing ADEs for derivatives of D-algebraic functions using recursive elimination with by computing resultant.
 - **invDalg**: for computing ADEs for functional inverses of D-algebraic functions by explicit construction.
 - **AnsatzDalg**: a subpackage with main sub-procedures **unaryDeltak** and **arithmeticDeltak** for doing the same computation (with some extensions) as _unaryDalg_ and _arithmeticDalg_ by an algorithmic search based on linear algebra.
-- **DDfiniteToDalg**: for converting a DD-finite ODE into an ADE having the same solutions.
+- **DDfiniteToDalg**: for converting a DD-finite ODE into an ADE whose set of solutions contains those of the DD-finite ODE.
 - **SysToMinDiffPoly**: for computing input-output equation of dynamical systems.
 - **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
 - **MultiDalg**: subpackage for operations with multivariate D-algebraic functions. The command, **arithmeticMDalg**, for arithmetic operations is now available! (May 2023).
