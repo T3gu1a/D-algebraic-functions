@@ -2,7 +2,8 @@
 unaryDalg:= proc(DE::`=`,
 		y::anyfunc(name),
 		z::name=ratpoly,
-		{ordering::identical(plex,lexdeg):=lexdeg},
+		{separantsZeros::truefalse:=false,
+		ordering::identical(plex,lexdeg):=lexdeg},
 		$)::`=`;
 		local t::name:=op(y),var::name:=op(0,y),dvar::name:=lhs(z),
 		      r::ratpoly:=rhs(z),Sys::list,x::nothing;
@@ -19,5 +20,5 @@ unaryDalg:= proc(DE::`=`,
 		Sys:=NLDE_nlho:-buildsystem(lhs(DE) - rhs(DE)=0,y,x);
 		#use SysToMinDiffPoly to return the desired output
 		return NLDE_nlho:-SysToMinDiffPoly(Sys[1],subs(var=Sys[2][1][1],r),
-		                          Sys[2],dvar(t),':-ordering'=ordering)
+		                        Sys[2],dvar(t),Sys[3],sepsols=separantsZeros,':-ordering'=ordering)
 	end proc:

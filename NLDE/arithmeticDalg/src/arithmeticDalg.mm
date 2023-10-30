@@ -4,7 +4,8 @@ arithmeticDalg:=proc(L::list(`=`),
 		     z::name=ratpoly,
 		    {ordering::identical(plex,lexdeg):=plex,
 		    lho::truefalse:=true,
-		    lhoplex::truefalse:=false},
+		    lhoplex::truefalse:=false,
+		    separantsZeros::truefalse:=false},
 		    $)::`=`;
 		local t:=op(1,V[1]),DEs::list(`=`),Sys::list,j::posint,subV::list;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -34,9 +35,11 @@ arithmeticDalg:=proc(L::list(`=`),
 			return SysToMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=ordering)
 		else
 			if lhoplex then 
-				return NLDE_nlho:-SysToMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=plex)
+				return NLDE_nlho:-SysToMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),
+				subs(subV,Sys[4]),sepsols=separantsZeros,':-ordering'=plex)
 			else
-				return NLDE_nlho:-SysToMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),':-ordering'=lexdeg)
+				return NLDE_nlho:-SysToMinDiffPoly(Sys[1],subs(subV,rhs(z)),Sys[3],lhs(z)(t),
+				subs(subV,Sys[4]),sepsols=separantsZeros,':-ordering'=lexdeg)
 			end if
 		end if
 	end proc:
