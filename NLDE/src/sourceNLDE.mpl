@@ -5,7 +5,7 @@ option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for Mi
 export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, 
        AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, HoloToSimpleRatrec;
 
-local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho;
+local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, HoloToSimpleRatrecLA, HoloToSimpleRatrecGB;;
 
 $include <NLDE/OrderDegreeADE/src/OrderDegreeADE.mm>
 $include <NLDE/CommonInternalProcedures/src/mergesystem.mm>
