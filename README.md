@@ -1,6 +1,6 @@
 # D-algebraic functions in Maple
 
-**NLDE** (NonLinear algebra and Differential Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. The package provides:
+**NLDE** (NonLinear algebra and Differential/Difference Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. Some features for the difference case are bieng implemented. The package provides:
 
 - **unaryDalg**: for computing ADEs for rational expressions of a single D-algebraic function using elimination with Groebner bases.
 - **arithmeticDalg**: for computing ADEs for rational expressions of D-algebraic functions using elimination with Groebner bases.
@@ -12,6 +12,7 @@
 - **SysToMinDiffPoly**: for computing input-output equation of dynamical systems.
 - **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
 - **MultiDalg**: subpackage for operations with multivariate D-algebraic functions. The command, **arithmeticMDalg**, for arithmetic operations is now available! (May 2023).
+- **HoloToSimpleRatrec**: for converting a given holonomic difference polynomial (holonomic equation) into a simple ratrec equation.
 
 ## Installation
 
@@ -34,7 +35,7 @@ For Groebner bases computations the package relies on the following Maple packag
 
 ## Author
 
-- [Bertrand Teguia Tabuguia](https://bertrandteguia.com), Max Planck Institute for Mathematics in the Sciences (2022-present).
+- [Bertrand Teguia Tabuguia](https://bertrandteguia.com), Max Planck Institute for Mathematics in the Sciences (2022-2023). University of Oxford (2023 - present)
 - licence: GNU General Public Licence v3.0.
 
 ## Documentation and Examples
@@ -47,9 +48,10 @@ One can try the examples of the documentation in the Maple worksheet MapleWorksh
 
 ## References
 
-1. [D-algebraic functions](https://arxiv.org/abs/2301.02512). Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. January 2023.
+1. [D-algebraic functions](https://arxiv.org/abs/2301.02512). Rida Ait El Manssour, Anna-Laura Sattelberger, Bertrand Teguia Tabuguia. January 2023. Journal of Symbolic Computation. DOI: [https://doi.org/10.1016/j.jsc.2024.102377](https://doi.org/10.1016/j.jsc.2024.102377).
 
-2. [Operations for D-algebraic functions](https://arxiv.org/abs/2304.09675). Bertrand Teguia Tabuguia. April 2023.
+2. [Operations for D-algebraic functions](https://arxiv.org/abs/2304.09675). Bertrand Teguia Tabuguia. April 2023. ACM Communications in Computer Algebra, Volume 57, Issue 2. Pages 51--56. June 2023
 
-3. [Arithmetic of D-algebraic functions](https://arxiv.org/abs/2305.00702). Bertrand Teguia Tabuguia. May 2023.
+3. [Arithmetic of D-algebraic functions](https://arxiv.org/abs/2305.00702). Bertrand Teguia Tabuguia. May 2023. Journal of Symbolic Computation. DOI: [https://doi.org/10.1016/j.jsc.2024.102348](https://doi.org/10.1016/j.jsc.2024.102348).
+4. [On Rational Recursion for Holonomic Sequences](https://arxiv.org/abs/2404.19136) Bertrand Teguia Tabuguia and James Worrell. April 2024. In: Boulier, F., Mou, C., Sadykov, T.M., Vorozhtsov, E.V. (eds) Computer Algebra in Scientific Computing. CASC 2024. LNCS, vol 14938. Springer, Cham. DOI: [https://doi.org/10.1007/978-3-031-69070-9_18](https://doi.org/10.1007/978-3-031-69070-9_18).
 
