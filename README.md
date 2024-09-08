@@ -13,6 +13,7 @@
 - **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
 - **MultiDalg**: subpackage for operations with multivariate D-algebraic functions. The command, **arithmeticMDalg**, for arithmetic operations is now available! (May 2023).
 - **HoloToSimpleRatrec**: for converting a given holonomic difference polynomial (holonomic equation) into a simple ratrec equation.
+- **DDStoADE**: for computing the input-output difference equation of a discrete-time rational dynamical system (state-space with no input).
 
 ## Installation
 
