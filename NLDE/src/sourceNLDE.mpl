@@ -2,8 +2,8 @@ NLDE:= module()
 
 option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Leipzig`, package;
 
-export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, 
-       AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, HoloToSimpleRatrec, OrderDegreeRec;
+export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, MultiDalg,
+       AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, HoloToSimpleRatrec, OrderDegreeRec, DalgSeq;
 
 local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, HoloToSimpleRatrecLA, HoloToSimpleRatrecGB;
 
@@ -19,6 +19,7 @@ $include <NLDE/DDfiniteToDalg/src/DDfiniteToDalg.mm>
 $include <NLDE/CommonInternalProcedures/src/NLDE_nlho.mm>
 $include <NLDE/AnsatzDalg/src/AnsatzDalg.mm>
 $include <NLDE/MultiDalg/src/MultiDalg.mm>
+$include <NLDE/DalgSeq/src/DalgSeq.mm>
 $include <NLDE/Shift-algebraic-sequences/HoloToSimpleRatrec/HoloToSimpleRatrec.mm>
 $include <NLDE/Shift-algebraic-sequences/OrderDegreeRec/OrderDegreeRec.mm>
 
