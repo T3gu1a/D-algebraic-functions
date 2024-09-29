@@ -1,12 +1,12 @@
 #Conversion of holonomic equation to simple ratrec equations
 
 HoloToSimpleRatrec := proc(heq::Or(`=`,algebraic),
-			   v::anyfunc(name),
-			   {userbound::nonnegint:=0,
-			   method::identical(GB,LA):=LA},
-			   $)::`=`;
+			     v::anyfunc(name),
+	            {userbound::nonnegint:=0,
+			method::identical(GB,LA):=LA},
+			    $)::`=`;
 		option `Copyright (c) 2024 Bertrand Teguia T.`;
-		if method=LA then
+		if method = LA then
 			return HoloToSimpleRatrecLA(heq,v)
 		elif method = GB then
 			return HoloToSimpleRatrecGB(heq,v,':-userbound'=userbound)
@@ -14,16 +14,18 @@ HoloToSimpleRatrec := proc(heq::Or(`=`,algebraic),
 	end proc:
 	
 HoloToSimpleRatrecGB := proc(heq::Or(`=`,algebraic),v::anyfunc(name),{userbound::nonnegint:=0},$)::`=`;
-		local P::algebraic, n::name, a::name, l::nonnegint, d::nonnegint, L::list,
+		local P::algebraic, n::name, a::name, l::integer,l0::integer, d::nonnegint, L::list,
 		x::nothing, J, par::set, E::list:=[], j:=nonnegint, i::nonnegint:=0, A::list, R::`=`;
 		option `Copyright (c) 2024 Bertrand Teguia T.`;
 		P:=ifelse(type(heq,`=`),lhs(heq)-rhs(heq),heq);
 		par:=indets(heq) minus {indets(v)};
 		n:=op(v);
 		a:=op(0,v);
-		l:=HyperTypeSeq:-AlgebraHolonomicSeq:-REorder(P=0, a(n));
+		(l,l0):=DalgSeq:-REorders(P=0, a(n));
+		l:=l-l0;
+		P:=LREtools:-shift(P,n,-l0);
 		L:=[subs([seq(a(n + j) = a[n + j], j = 0..l), n = x[n]], P)];
-		d:=min(degree(L[1],x[n]),userbound);
+		d:=ifelse(userbound=0,degree(L[1],x[n]),userbound);
 		while E = [] and i<=d do:
 			i:=i+1;
 			L:=[subs([seq(a(n + j) = a[n + j], j = i .. l+i), n = x[n]], normal(LREtools:-shift(P,n,i))),op(L)];
@@ -42,13 +44,15 @@ HoloToSimpleRatrecGB := proc(heq::Or(`=`,algebraic),v::anyfunc(name),{userbound:
 	end proc:
 
 HoloToSimpleRatrecLA := proc(heq::Or(`=`,algebraic),v::anyfunc(name),$)::`=`;
-		local P::algebraic, n::name, a::name, l::nonnegint, d::nonnegint, L::list,
+		local P::algebraic, n::name, a::name, l::integer, l0::integer, d::nonnegint, L::list,
 		x::nothing, E::list:=[], j:=nonnegint, i::nonnegint:=0, R::algebraic;
 		option `Copyright (c) 2024 Bertrand Teguia T.`;
 		P:=ifelse(type(heq,`=`),lhs(heq)-rhs(heq),heq);
 		n:=op(v);
 		a:=op(0,v);
-		l:=HyperTypeSeq:-AlgebraHolonomicSeq:-REorder(P=0, a(n));
+		(l,l0):=DalgSeq:-REorders(P=0, a(n));
+		l:=l-l0;
+		P:=LREtools:-shift(P,n,-l0);
 		R:=subs([seq(a(n+j) = a[n+j], j=0..l), n=x[n]], collect(P,n,'distributed'));
 		d:=degree(R,x[n]);
 		L:=[R,op(subs([seq(a(n+j) = a[n+j], j=1..l+d-1), n=x[n]],[seq(collect(LREtools:-shift(P,n,i),n),i=1..d-1)]))];
