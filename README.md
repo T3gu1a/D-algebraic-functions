@@ -1,5 +1,7 @@
 # D-algebraic functions in Maple
 
+**Important note**: the package is being updated: a new subpackge, DalgSeq, is under construction. It will contains all commands for difference-algebraic sequences, including thre recent HoloToSimpleRatrec... Nice related paper coming soon!
+
 **NLDE** (NonLinear algebra and Differential/Difference Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. Some features for the difference case are bieng implemented. The package provides:
 
 - **unaryDalg**: for computing ADEs for rational expressions of a single D-algebraic function using elimination with Groebner bases.
@@ -12,8 +14,7 @@
 - **SysToMinDiffPoly**: for computing input-output equation of dynamical systems.
 - **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
 - **MultiDalg**: subpackage for operations with multivariate D-algebraic functions. The command, **arithmeticMDalg**, for arithmetic operations is now available! (May 2023).
-- **HoloToSimpleRatrec**: for converting a given holonomic difference polynomial (holonomic equation) into a simple ratrec equation.
-- **DDStoADE**: for computing the input-output difference equation of a discrete-time rational dynamical system (state-space with no input).
+- **DalgSeq**: subpackage for operations with difference-algebraic sequences. Contains **HoloToSimpleRatrec**, and many more. More details to follow.
 
 ## Installation
 
