@@ -21,7 +21,7 @@ HoloToSimpleRatrecGB := proc(heq::Or(`=`,algebraic),v::anyfunc(name),{userbound:
 		par:=indets(heq) minus {indets(v)};
 		n:=op(v);
 		a:=op(0,v);
-		(l,l0):=DalgSeq:-REorders(P=0, a(n));
+		(l,l0):=REorders(P=0, a(n));
 		l:=l-l0;
 		P:=LREtools:-shift(P,n,-l0);
 		L:=[subs([seq(a(n + j) = a[n + j], j = 0..l), n = x[n]], P)];
@@ -50,7 +50,7 @@ HoloToSimpleRatrecLA := proc(heq::Or(`=`,algebraic),v::anyfunc(name),$)::`=`;
 		P:=ifelse(type(heq,`=`),lhs(heq)-rhs(heq),heq);
 		n:=op(v);
 		a:=op(0,v);
-		(l,l0):=DalgSeq:-REorders(P=0, a(n));
+		(l,l0):=REorders(P=0, a(n));
 		l:=l-l0;
 		P:=LREtools:-shift(P,n,-l0);
 		R:=subs([seq(a(n+j) = a[n+j], j=0..l), n=x[n]], collect(P,n,'distributed'));

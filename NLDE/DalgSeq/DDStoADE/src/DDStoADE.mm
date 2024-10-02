@@ -50,8 +50,8 @@ DDStoADE:= proc(f::list(algebraic),
 		Sub:=select(has,map(e->rhs(e)=lhs(e),Sub),y);
 		J:=map(de->subs(Sub,de),J);
 		#order
-		ord:=min(map(de->DalgSeq:-REorders(de,y(t))[1],J));
-		DE:=select(de->DalgSeq:-REorders(de,y(t))[1]=ord,J);
+		ord:=min(map(de->REorders(de,y(t))[1],J));
+		DE:=select(de->REorders(de,y(t))[1]=ord,J);
 		Sub:=map(e->rhs(e)=lhs(e),Sub);
 		DE:=map(de->subs(Sub,de),DE);
 		#degree
