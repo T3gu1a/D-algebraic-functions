@@ -5,12 +5,13 @@ DalgSeq := module()
 option `Copyright (c) 2024 Bertrand Teguia Tabuguia, University of Oxford`, package;
 
 export arithmeticDalgSeq, unaryDalgSeq, FiniteSeriesDalgSeq, FiniteProdDalgSeq, 
-       REorders, CCfiniteToDalg, HoloToSimpleRatrec, OrderDegreeRec, DDStoADE;
+       radicalDalgSeq, REorders, CCfiniteToDalg, HoloToSimpleRatrec, OrderDegreeRec, DDStoADE;
 
 local buildsystemseq, mergesystemseq, SystoDE, HoloToSimpleRatrecLA, HoloToSimpleRatrecGB;
 
 $include <NLDE/DalgSeq/arithmeticDalgSeq/src/arithmeticDalgSeq.mm>
 $include <NLDE/DalgSeq/unaryDalgSeq/src/unaryDalgSeq.mm>
+$include <NLDE/DalgSeq/radicalDalgSeq/src/radicalDalgSeq.mm>
 $include <NLDE/DalgSeq/FiniteSeriesDalgSeq/src/FiniteSeriesDalgSeq.mm>
 $include <NLDE/DalgSeq/FiniteProdDalgSeq/src/FiniteProdDalgSeq.mm>
 $include <NLDE/DalgSeq/CommonInternalProcedures/src/buildsystemseq.mm>
