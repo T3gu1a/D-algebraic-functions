@@ -4,7 +4,7 @@ DalgSeq := module()
 
 option `Copyright (c) 2024 Bertrand Teguia Tabuguia, University of Oxford`, package;
 
-export arithmeticDalgSeq, unaryDalgSeq, FiniteSeriesDalgSeq, FiniteProdDalgSeq, 
+export arithmeticDalgSeq, unaryDalgSeq, PartialSumDalgSeq, PartialProdDalgSeq, 
        radicalDalgSeq, REorders, CCfiniteToDalg, HoloToSimpleRatrec, OrderDegreeRec, DDStoADE;
 
 local buildsystemseq, mergesystemseq, SystoDE, HoloToSimpleRatrecLA, HoloToSimpleRatrecGB;
