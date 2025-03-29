@@ -5,7 +5,7 @@ option `Copyright (c) 2022 Bertrand Teguia Tabuguia, Max Planck Institute for Mi
 
 export deltakdiff, unaryDeltak, arithmeticDeltak;
 
-local buildsystem, mergesystem, ComputDegkDE, DegreekDE, startkorder, ordertoktuple;
+local buildsystem, mergesystem, ComputDegkDE, DegreekDE, startkorder;
 
 $include <NLDE/AnsatzDalg/unaryDeltak/src/unaryDeltak.mm>
 $include <NLDE/AnsatzDalg/arithmeticDeltak/src/arithmeticDeltak.mm>

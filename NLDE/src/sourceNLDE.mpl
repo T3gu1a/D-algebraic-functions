@@ -5,7 +5,7 @@ option `Copyright (c) 2022-2024 Bertrand Teguia Tabuguia, Max Planck Institute f
 export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, MultiDalg,
        AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, DalgSeq;
 
-local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho;
+local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, ordertoktuple;
 
 $include <NLDE/OrderDegreeADE/src/OrderDegreeADE.mm>
 $include <NLDE/CommonInternalProcedures/src/mergesystem.mm>
@@ -20,6 +20,7 @@ $include <NLDE/CommonInternalProcedures/src/NLDE_nlho.mm>
 $include <NLDE/AnsatzDalg/src/AnsatzDalg.mm>
 $include <NLDE/MultiDalg/src/MultiDalg.mm>
 $include <NLDE/DalgSeq/src/DalgSeq.mm>
+$include <NLDE/DiffShiftSubProcedures/src/ordertoktuple.mm>
 
 end module:
 

@@ -5,9 +5,11 @@ DalgSeq := module()
 option `Copyright (c) 2024 Bertrand Teguia Tabuguia, University of Oxford`, package;
 
 export arithmeticDalgSeq, unaryDalgSeq, PartialSumDalgSeq, PartialProdDalgSeq, 
-       radicalDalgSeq, REorders, CCfiniteToDalg, HoloToSimpleRatrec, OrderDegreeRec, DDStoADE;
+       radicalDalgSeq, CCfiniteToDalg, HoloToSimpleRatrec, OrderDegreeRec, DDStoADE,
+       DalgGuess, deltakshift;
 
-local buildsystemseq, mergesystemseq, SystoDE, HoloToSimpleRatrecLA, HoloToSimpleRatrecGB;
+local buildsystemseq, mergesystemseq, SystoDE, HoloToSimpleRatrecLA, HoloToSimpleRatrecGB,
+      checkingguess, REorders, shiftkstart;
 
 $include <NLDE/DalgSeq/arithmeticDalgSeq/src/arithmeticDalgSeq.mm>
 $include <NLDE/DalgSeq/unaryDalgSeq/src/unaryDalgSeq.mm>
@@ -22,5 +24,9 @@ $include <NLDE/DalgSeq/CCfiniteToDalg/src/CCfiniteToDalg.mm>
 $include <NLDE/DalgSeq/HoloToSimpleRatrec/src/HoloToSimpleRatrec.mm>
 $include <NLDE/DalgSeq/OrderDegreeRec/src/OrderDegreeRec.mm>
 $include <NLDE/DalgSeq/DDStoADE/src/DDStoADE.mm>
+$include <NLDE/DalgSeq/DalgGuess/src/DalgGuess.mm>
+$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/deltakshift.mm>
+$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/checkingguess.mm>
+$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/shiftkstart.mm>
 
 end module: #end DalgSeq
