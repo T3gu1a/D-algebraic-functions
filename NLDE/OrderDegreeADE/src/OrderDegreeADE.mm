@@ -9,6 +9,6 @@ OrderDegreeADE:= proc(ADE::`=`,
 		P:=lhs(ADE)-rhs(ADE);
 		r:=PDEtools:-difforder(P,x);
 		P:=subs([seq(diff(y,[x$j])=X[j],j=0..r)],P);
-		d:=degree(P,[seq(X[j],j=0..r)]);
+		d:=degree(P,{seq(X[j],j=0..r)});
 		return [r,d]
 	end proc:

@@ -7,8 +7,8 @@ OrderDegreeRec:= proc(RE::`=`,
 		option `Copyright (c) 2024 Bertrand Teguia T.`;
 		description "Returns [order, degree] of the input recurrence equation";
 		P:=numer(normal(lhs(RE) - rhs(RE)));
-		(r,r0):=REorders(P=0,X(n));
+		(r,r0):=REorders(P,X(n));
 		P:=subs([seq(X(n+j)=X[j],j=r0..r)],P);
-		d:=degree(P,[seq(X[j],j=r0..r)]);
+		d:=degree(P,{seq(X[j],j=r0..r)});
 		return [r-r0,d]
 	end proc:
