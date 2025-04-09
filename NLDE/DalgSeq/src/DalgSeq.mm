@@ -6,7 +6,7 @@ option `Copyright (c) 2024 Bertrand Teguia Tabuguia, University of Oxford`, pack
 
 export arithmeticDalgSeq, unaryDalgSeq, PartialSumDalgSeq, PartialProdDalgSeq, 
        radicalDalgSeq, CCfiniteToDalg, HoloToSimpleRatrec, OrderDegreeRec, DDStoADE,
-       DalgGuess, deltakshift;
+       DalgGuess, deltakshift, AnsatzDalgSeq;
 
 local buildsystemseq, mergesystemseq, SystoDE, HoloToSimpleRatrecLA, HoloToSimpleRatrecGB,
       checkingguess, REorders, shiftkstart;
@@ -28,5 +28,6 @@ $include <NLDE/DalgSeq/DalgGuess/src/DalgGuess.mm>
 $include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/deltakshift.mm>
 $include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/checkingguess.mm>
 $include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/shiftkstart.mm>
+$include <NLDE/DalgSeq/AnsatzDalgSeq/src/AnsatzDalgSeq.mm>
 
 end module: #end DalgSeq
