@@ -17,16 +17,26 @@ CCfiniteToSimpleRatrec:=proc(DE::`=`,S::anyfunc(name),Leq::list(`=`),Lvars::list
 			R[-1]:=R[-1]-1;
 			for j to l do
 				for k from 0 to R[j]-1 do
-					p:=subs(C,p);
 					if has(p,subs(n=n+k,Lvars[j])) then
 						eqelim:=subs(n=n+k,Lvars[j])=solve(p,subs(n=n+k,Lvars[j]));
 						Elim:=subs(eqelim,Elim);
 						Elim:= [eqelim,op(Elim)]
 					end if;
 					C:=subs(Elim,C);
-					p:=subs(Elim,subs(n=n+1,p))
+					p:=subs(Elim,subs(n=n+1,p));
+					p:=subs(C,p);
 				end do
 			end do;
-			r:=r+add(R);
-			return s(n+r)=solve(subs(C,p),s(n+r))
+			k:=R[-1];
+			if evalb(eval(normal(p),subs(n=n+k,Lvars[-1])=0)) then
+				r:=r+add(R);
+				return s(n+r)=solve(subs(C,p),s(n+r))
+			else
+				r:=r+add(R)+1;
+				eqelim:=subs(n=n+k,Lvars[-1])=solve(p,subs(n=n+k,Lvars[-1]));
+				Elim:= [eqelim,op(Elim)];
+				C:=subs(Elim,C);
+				p:=subs(Elim,subs(n=n+1,p));
+				return s(n+r)=solve(subs(C,p),s(n+r))
+			end if
 		end proc:
