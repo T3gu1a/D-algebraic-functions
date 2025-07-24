@@ -2,7 +2,7 @@
 
 **Goal**: The ultimate goal of this project is to develop and implement efficient algorithms for operations involving **D-algebraic functions and sequences**. While elimination methods based on Gröbner bases are often too general for specific problems, our aim is to find highly optimized approaches for D-algebraicity-related elimination challenges that avoid generic Gröbner basis computations.
 
-A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq** subpackage within **NLDE**. This algorithm makes no explicit use of Gröbner bases, or even explicit linear algebra, yet its output perfectly matches that of the Gröbner bases approach. It consistently returns a rational recursion for the :math:`C^2`-finite sequence under consideration.
+A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq** subpackage within **NLDE**. This algorithm makes no explicit use of Gröbner bases, or even explicit linear algebra, yet its output perfectly matches that of the Gröbner bases approach. It consistently returns a rational recursion for the $C^2$-finite sequence under consideration.
 
 **NLDE** (NonLinear algebra and Differential/Difference Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. Some features for the difference case are bieng implemented. The package provides:
 
@@ -18,7 +18,7 @@ A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq
 - ``MultiDalg``: subpackage for operations with multivariate D-algebraic functions. The command, ``arithmeticMDalg``, for arithmetic operations is now available! (May 2023).
 - **DalgSeq**: subpackage for operations with difference-algebraic sequences. Its main commands are given below.
   - ``HoloToSimpleRatrec``: to convert a given holonomic equation into a rational recursion satisfied by *most* solutions of that holonomic equation.
-  - ``CCfiniteToSimpleRatrec``: to convert a given :math:``C^2``-finite equation into a rational recursion satisfied by *most* solutions of that :math:``C^2``-finite equation.
+  - ``CCfiniteToSimpleRatrec``: to convert a given :math:``C^2``-finite equation into a rational recursion satisfied by *most* solutions of that $C^2$-finite equation.
   - ``DalgGuess``: to search for an algebraic difference equation from finitely many first terms of an unknown sequence.
   - ``arithmeticDalgSeq``, ``unaryDalgSeq``, ``AnsatzDalgSeq``, ``OrderDegreeRec``, ``CCfiniteToDalg``, ``PartialSumDalgSeq``, ``PartialProdDalgSeq``. These commands are either self explanatory or are defined in a similar manner as their differential conterparts.
 
