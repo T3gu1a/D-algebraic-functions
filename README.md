@@ -1,20 +1,28 @@
 # D-algebraic functions in Maple
 
-**Important note**: the package is being updated: a new subpackge, DalgSeq, is under construction. It will contains all commands for difference-algebraic sequences, including thre recent HoloToSimpleRatrec... Nice related paper coming soon!
+**Goal**: The ultimate goal of this project is to develop and implement efficient algorithms for operations involving **D-algebraic functions and sequences**. While elimination methods based on Gröbner bases are often too general for specific problems, our aim is to find highly optimized approaches for D-algebraicity-related elimination challenges that avoid generic Gröbner basis computations.
+
+A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq** subpackage within **NLDE**. This algorithm makes no explicit use of Gröbner bases, or even explicit linear algebra, yet its output perfectly matches that of the Gröbner bases approach. It consistently returns a rational recursion for the :math:`C^2`-finite sequence under consideration.
 
 **NLDE** (NonLinear algebra and Differential/Difference Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. Some features for the difference case are bieng implemented. The package provides:
 
-- **unaryDalg**: for computing ADEs for rational expressions of a single D-algebraic function using elimination with Groebner bases.
-- **arithmeticDalg**: for computing ADEs for rational expressions of D-algebraic functions using elimination with Groebner bases.
-- **composeDalg**: for computing ADEs for compositions of D-algebraic functions partly using elimination with Groebner bases.
-- **diffDalg**: for computing ADEs for derivatives of D-algebraic functions using recursive elimination with by computing resultant.
-- **invDalg**: for computing ADEs for functional inverses of D-algebraic functions by explicit construction.
-- **AnsatzDalg**: a subpackage with main sub-procedures **unaryDeltak** and **arithmeticDeltak** for doing the same computation (with some extensions) as _unaryDalg_ and _arithmeticDalg_ by an algorithmic search based on linear algebra.
-- **DDfiniteToDalg**: for converting a DD-finite ODE into an ADE whose set of solutions contains those of the DD-finite ODE.
-- **SysToMinDiffPoly**: for computing input-output equation of dynamical systems.
-- **OrderDegreeADE**: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
-- **MultiDalg**: subpackage for operations with multivariate D-algebraic functions. The command, **arithmeticMDalg**, for arithmetic operations is now available! (May 2023).
-- **DalgSeq**: subpackage for operations with difference-algebraic sequences. Contains **HoloToSimpleRatrec**, and many more. More details to follow.
+- ``unaryDalg``: for computing ADEs for rational expressions of a single D-algebraic function using elimination with Groebner bases.
+- ``arithmeticDalg``: for computing ADEs for rational expressions of D-algebraic functions using elimination with Groebner bases.
+- ``composeDalg``: for computing ADEs for compositions of D-algebraic functions partly using elimination with Groebner bases.
+- ``diffDalg``: for computing ADEs for derivatives of D-algebraic functions using recursive elimination with by computing resultant.
+- ``invDalg``: for computing ADEs for functional inverses of D-algebraic functions by explicit construction.
+- ``AnsatzDalg``: a subpackage with main sub-procedures ``unaryDeltak`` and ``arithmeticDeltak`` for doing the same computation (with some extensions) as _unaryDalg_ and _arithmeticDalg_ by an algorithmic search based on linear algebra.
+- ``DDfiniteToDalg``: for converting a DD-finite ODE into an ADE whose set of solutions contains those of the DD-finite ODE.
+- ``SysToMinDiffPoly``: for computing input-output equation of dynamical systems.
+- ``OrderDegreeADE``: for computing the order and the degree of a given ADE. Often useful when the ADE displays on several lines.
+- ``MultiDalg``: subpackage for operations with multivariate D-algebraic functions. The command, ``arithmeticMDalg``, for arithmetic operations is now available! (May 2023).
+- **DalgSeq**: subpackage for operations with difference-algebraic sequences. Its main commands are given below.
+  - ``HoloToSimpleRatrec``: to convert a given holonomic equation into a rational recursion satisfied by *most* solutions of that holonomic equation.
+  - ``CCfiniteToSimpleRatrec``: to convert a given :math:``C^2``-finite equation into a rational recursion satisfied by *most* solutions of that :math:``C^2``-finite equation.
+  - ``DalgGuess``: to search for an algebraic difference equation from finitely many first terms of an unknown sequence.
+  - ``arithmeticDalgSeq``, ``unaryDalgSeq``, ``AnsatzDalgSeq``, ``OrderDegreeRec``, ``CCfiniteToDalg``, ``PartialSumDalgSeq``, ``PartialProdDalgSeq``. These commands are either self explanatory or are defined in a similar manner as their differential conterparts.
+
+
 
 ## Installation
 
