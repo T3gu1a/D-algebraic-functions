@@ -18,7 +18,7 @@ A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq
 - ``MultiDalg``: subpackage for operations with multivariate D-algebraic functions. The command, ``arithmeticMDalg``, for arithmetic operations is now available! (May 2023).
 - **DalgSeq**: subpackage for operations with difference-algebraic sequences. Its main commands are given below.
   - ``HoloToSimpleRatrec``: to convert a given holonomic equation into a rational recursion satisfied by *most* solutions of that holonomic equation.
-  - ``CCfiniteToSimpleRatrec``: to convert a given :math:``C^2``-finite equation into a rational recursion satisfied by *most* solutions of that $C^2$-finite equation.
+  - ``CCfiniteToSimpleRatrec``: to convert a given $C^2$-finite equation into a rational recursion satisfied by *most* solutions of that $C^2$-finite equation.
   - ``DalgGuess``: to search for an algebraic difference equation from finitely many first terms of an unknown sequence.
   - ``arithmeticDalgSeq``, ``unaryDalgSeq``, ``AnsatzDalgSeq``, ``OrderDegreeRec``, ``CCfiniteToDalg``, ``PartialSumDalgSeq``, ``PartialProdDalgSeq``. These commands are either self explanatory or are defined in a similar manner as their differential conterparts.
 
