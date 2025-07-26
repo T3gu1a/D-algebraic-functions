@@ -20,7 +20,7 @@ A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq
   - ``HoloToSimpleRatrec``: to convert a given holonomic equation into a rational recursion satisfied by *most* solutions of that holonomic equation.
   - ``CCfiniteToSimpleRatrec``: to convert a given $C^2$-finite equation into a rational recursion satisfied by *most* solutions of that $C^2$-finite equation.
   - ``DalgGuess``: to search for an algebraic difference equation from finitely many first terms of an unknown sequence.
-  - ``arithmeticDalgSeq``, ``unaryDalgSeq``, ``AnsatzDalgSeq``, ``OrderDegreeRec``, ``CCfiniteToDalg``, ``PartialSumDalgSeq``, ``PartialProdDalgSeq``. These commands are either self explanatory or are defined in a similar manner as their differential conterparts.
+  - ``arithmeticDalgSeq``, ``unaryDalgSeq``, ``AnsatzDalgSeq``, ``OrderDegreeRec``, ``CCfiniteToDalg``, ``PartialSumDalgSeq``, ``PartialProdDalgSeq``. Most of these commands are either self explanatory and work in a similar manner as their differential conterparts. Further details about **DalgSeq** may be find [here](https://t3gu1a.github.io/NLDEdoc/DalgSeq-Commands-and-Examples.html)
 
 
 
@@ -51,6 +51,7 @@ For Groebner bases computations the package relies on the following Maple packag
 ## Documentation and Examples
 
 An old documentation with examples are given at [NLDE documentation](https://T3gu1a.github.io/NLDEdoc/).
+There is also [DalgSeq simple documentation](https://t3gu1a.github.io/NLDEdoc/DalgSeq-Commands-and-Examples.html).
 
 ## Examples in a Maple worksheet
 
