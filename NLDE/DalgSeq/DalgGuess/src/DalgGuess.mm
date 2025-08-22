@@ -29,7 +29,7 @@ DalgGuess := proc(L::list,
 			A:=a(n)
 		end if;
 
-		M:=shiftkstart(startfromord,k,A,n);
+		M:=shiftkstart(startfromord,k);
 		if M>N then
 			V:=[op(V),seq(c[i],i=N..M-1)];
 			N:=M

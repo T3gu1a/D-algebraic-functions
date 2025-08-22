@@ -1,12 +1,14 @@
 
-#Remark: minmaxorder ... ((n + 1)*(n^4 + 19*n^3 + 136*n^2 + 444*n + 600))/120
+#Interesting combinatorics: the deltakorder of the differential
+#equation of degree k and maximum order n is binomial(k+n,k)
 
 startkorder := proc(n::nonnegint,k,F,z,$)
-		local j:=k+1,df;
-		df:=deltakdiff(F,z,k,j);
-		while PDEtools:-difforder(df,z)<n do
-			j:=j+1;
-			df:=deltakdiff(F,z,k,j)
-		end do;
-		return j
+		#local j:=k,df;
+		#df:=deltakdiff(F,z,k,j);
+		#while PDEtools:-difforder(df,z)<n do
+		#	j:=j+1;
+		#	df:=deltakdiff(F,z,k,binomial(j,k))
+		#end do;
+		#return binomial(j,k)
+		return binomial(k+n,k)
 	end proc:

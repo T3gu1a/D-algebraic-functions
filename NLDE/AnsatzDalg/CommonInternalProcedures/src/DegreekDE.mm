@@ -16,7 +16,7 @@ DegreekDE := proc(expr::algebraic,
 			return F=0
 		end if;
 		#compute the coeficients of the DE sought
-		Coef,N:=ComputDegkDE(f,z,degreeDE,maxdeorder,sublistdiff,startkorder(startfromord,degreeDE,F,z));
+		Coef,N:=ComputDegkDE(f,z,degreeDE,maxdeorder,sublistdiff,startkorder(startfromord,degreeDE));
 		#if there is a solution (Coef is not empty)
 		if Coef<>[] then
 			#clearing denominators

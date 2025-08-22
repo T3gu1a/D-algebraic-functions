@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "C:\\Program Files\\Maple 2023\\bin.X86_64_WINDOWS\\maple-jupyter",
+    "-f",
+    "{connection_file}"
+  ],
+  "display_name": "Maple 2023",
+  "env": {
+    "PATH": "C:\\Program Files\\Maple 2023\\bin.X86_64_WINDOWS",
+    "MAPLE": "C:\\Program Files\\Maple 2023"
+  },
+  "language": "maple"
+}
