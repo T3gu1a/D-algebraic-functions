@@ -25,9 +25,6 @@ $include <NLDE/DalgSeq/HoloToSimpleRatrec/src/HoloToSimpleRatrec.mm>
 $include <NLDE/DalgSeq/OrderDegreeRec/src/OrderDegreeRec.mm>
 $include <NLDE/DalgSeq/DDStoADE/src/DDStoADE.mm>
 $include <NLDE/DalgSeq/DalgGuess/src/DalgGuess.mm>
-$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/deltakshift.mm>
-$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/checkingguess.mm>
-$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/shiftkstart.mm>
 $include <NLDE/DalgSeq/AnsatzDalgSeq/src/AnsatzDalgSeq.mm>
 $include <NLDE/DalgSeq/CCfiniteToSimpleRatrec/src/CCfiniteToSimpleRatrec.mm>
 

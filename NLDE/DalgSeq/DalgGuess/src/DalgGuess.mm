@@ -87,3 +87,7 @@ DalgGuess := proc(L::list,
 			return FAIL
 		end if
 	end proc:
+	
+$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/deltakshift.mm>
+$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/checkingguess.mm>
+$include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/shiftkstart.mm>

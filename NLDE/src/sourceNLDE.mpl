@@ -3,9 +3,9 @@ NLDE:= module()
 option `Copyright (c) 2022-2024 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Germany, University of Oxford, UK`, package;
 
 export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, MultiDalg,
-       AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, DalgSeq;
+       AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, DalgSeq, DalgFunGuess;
 
-local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, ordertoktuple;
+local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, ordertoktuple, CheckSol, ADEtoRE, ADEtermToREterm, ADECauchyprod, poch;
 
 $include <NLDE/OrderDegreeADE/src/OrderDegreeADE.mm>
 $include <NLDE/CommonInternalProcedures/src/mergesystem.mm>
@@ -21,6 +21,7 @@ $include <NLDE/AnsatzDalg/src/AnsatzDalg.mm>
 $include <NLDE/MultiDalg/src/MultiDalg.mm>
 $include <NLDE/DalgSeq/src/DalgSeq.mm>
 $include <NLDE/DiffShiftSubProcedures/src/ordertoktuple.mm>
+$include <NLDE/DalgFunGuess/src/DalFunGuess.mm>
 
 end module:
 
