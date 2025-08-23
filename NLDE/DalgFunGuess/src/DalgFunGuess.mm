@@ -62,7 +62,7 @@ DalgFunGuess:= proc(L::list,
 			#S:=try op(solve(Eq,V)) catch : NULL  end try;
 			S:=SolveTools:-Linear(Eq,V,method='AlgebraicFunction');
 			if S<>NULL then
-				if remove(v->rhs(v)=0,S)={} then
+				if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
 					S:=NULL
 				else
 					#checking the solution
@@ -71,6 +71,7 @@ DalgFunGuess:= proc(L::list,
 			end if;
 			while N<Nmax and not(correct) do
 				N:=N+1;
+				#print(N,Nmax);
 				V:=[op(V),seq(c[i],i=M..M+degPoly)];
 				NDE:=add(V[M+i]*x^(i-1)*AnsatzDalg:-deltakdiff(Y,x,degADE,N),i=1..degPoly+1);
 				ADE:=NDE+ADE;
@@ -82,9 +83,11 @@ DalgFunGuess:= proc(L::list,
 				#Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
 				NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 				Eq:=subs(NegInd,Eq);
-				S:= SolveTools:-Linear(Eq,V,method='AlgebraicFunction')
+				#print("ok1");
+				S:=SolveTools:-Linear(Eq,V,method='AlgebraicFunction');
+				#print("ok2");
 				if S<>NULL then
-					if remove(v->rhs(v)=0,S)={} then
+					if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
 						S:=NULL
 					else
 						#verification step
