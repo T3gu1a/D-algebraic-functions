@@ -1,21 +1,26 @@
 
-#Guessing D-algebraic functions
-
-DalgFunGuess:= proc(L::list,
-	      {degADE::posint:=2,
-	      degPoly::nonnegint:=2,
-	       devars::anyfunc(name):=NULL,
-	 startfromord::nonnegint:=0,
-	   allPolyDeg::truefalse:=false,
-	    linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense):=AlgebraicFunction},
-		   $)::Or(identical(FAIL),`=`);
+#The D-algebraic function guesser (finite field)
+modDalgFunGuess:= proc(L::list,
+	         {degADE::posint:=2,
+	         degPoly::nonnegint:=2,
+	          devars::anyfunc(name):=NULL,
+	    startfromord::nonnegint:=0,
+	      allPolyDeg::truefalse:=false,
+	         modulus::posint:=7},
+		      $)::Or(identical(FAIL),`=`);
 		option `Copyright (c) 2025 Bertrand Teguia T.`;
 		description "Guessing D-algebraic functions (finding their differential equations)";
 		local  Y::anyfunc(name),y::name,x::name,A::anyfunc(name),a::name,n::name,i::nonnegint,
-		       c::nothing,N::posint,M::posint,V::list,j::nonnegint,Sinit::list(`=`),k::name,
+		       c::nothing,N::posint,M::posint,V::list,j::nonnegint,Sinit::list(eq),k::name,
 		       nL::posint:=numelems(L),termfree::truefalse:=true,ADE::algebraic,RE::algebraic,	
 		       K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
-		       NDE::algebraic,correct::boolean:=false,Arbconst::list,REcheck::algebraic,NRE::algebraic;
+		       NDE::algebraic,correct::boolean:=false,Arbconst::list,REcheck::algebraic,NRE::algebraic,
+		       Terms::list(integer);
+		       
+		Terms:= try map(term -> term mod modulus, L) catch : [] end try;
+		if Terms = [] then
+			return FAIL
+		end if;
 		#minimal deltak order for starting order startfromord
 		N:=binomial(degADE+startfromord,degADE);
 		#minimal number of unknown
@@ -47,29 +52,28 @@ DalgFunGuess:= proc(L::list,
 		K:=[seq(cat(k,j),j=0..degADE-1)];
 		interface(warnlevel=4);
 		A:=a(n);
-		Sinit:=[seq(a(i-1)=L[i],i=1..nL)];
+		Sinit:=[seq(a(i-1)=Terms[i],i=1..nL)];
 		#initialization - ADE and RE of the first iteration
 		ADE:=add(add(V[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
 		RE:=ADEtoRE(ADE,Y,A,K);
 		#write the RE for non-negative indices
 		#build the linear system and solve it
-		Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
+		Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add]) mod modulus) mod modulus,i=0..M-1)];
 		#NegInd: list for substituting terms with negative indices to zero
 		NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 		Eq:=subs(NegInd,Eq);
 		#too few initial values
 		termfree:=evalb(indets(Eq,a('integer'))={});
 		if not(termfree) then
-			return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver),FAIL)
+			return ifelse(allPolyDeg,modFixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,modulus),FAIL)
 		end if;
-		#S:=try op(solve(Eq,V)) catch : NULL  end try;
-		S:=SolveTools:-Linear(Eq,V,method=linsolver);
+		S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
 		if S<>NULL then
-			if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
+			if remove(v->rhs(v)=0,S)={} or has(map(lhs,S),a) then
 				S:=NULL
 			else
 				#checking the solution
-				REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
+				REcheck, S, correct:=modcheckSol(S,RE,NegInd,Sinit,M,nL,a,n,modulus)
 			end if
 		end if;
 		while termfree and not(correct) do
@@ -79,21 +83,20 @@ DalgFunGuess:= proc(L::list,
 			ADE:=NDE+ADE;
 			NRE:=ADEtoRE(NDE,Y,A,K);
 			RE:=NRE+RE;
-			Eq:=[seq(Eq[i+1]+subs(Sinit,eval(NRE,[n=i,Sum=add])),i=0..M-1)];
-			Eq:=[op(Eq),seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=M..M+degPoly+1)];
+			Eq:=[seq(Eq[i+1]+subs(Sinit,eval(NRE,[n=i,Sum=add]) mod modulus) mod modulus,i=0..M-1)];
+			Eq:=[op(Eq),seq(subs(Sinit,eval(RE,[n=i,Sum=add]) mod modulus) mod modulus,i=M..M+degPoly+1)];
 			M:=M+degPoly+1;
-			#Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
 			NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 			Eq:=subs(NegInd,Eq);
 			termfree:=evalb(indets(Eq,a('integer'))={});
-			if termfree then
-				S:=SolveTools:-Linear(Eq,V,method=linsolver);
+			if termfree then 
+				S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
 				if S<>NULL then
-					if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
+					if remove(v->rhs(v)=0,S)={} or has(map(lhs,S),a) then
 						S:=NULL
 					else
 						#verification step
-						REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
+						REcheck, S, correct:=modcheckSol(S,RE,NegInd,Sinit,M,nL,a,n,modulus)
 					end if
 				end if
 			end if
@@ -109,11 +112,29 @@ DalgFunGuess:= proc(L::list,
 			ADE:=collect(ADE,{seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))},'distributed');
 			return ADE=0
 		else
-			return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver),FAIL)
+			return ifelse(allPolyDeg,modFixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,modulus),FAIL)
 		end if
 	end proc:
-
-$include <NLDE/DalgFunGuess/ADEtoRE/src/ADEtoRE.mm>
-$include <NLDE/DalgFunGuess/CheckSol/src/CheckSol.mm>
-$include <NLDE/DalgFunGuess/FixedOrdDegFunGuess/src/FixedOrdDegFunGuess.mm>
-$include <NLDE/DalgFunGuess/modDalgFunGuess/src/modDalgFunGuess.mm>
+	
+modcheckSol:= proc(Sol::Or(list,set),
+		      REsol::algebraic,
+		     NegInd::list,
+		      Sinit::list,
+		          M::posint,
+		         nL::nonnegint,
+		          a::name,
+			  n::name,
+			  m::posint,
+		          $)
+		local S::list, RE::algebraic, checkL::list, checkset::set,i::nonnegint;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		S:=map(simplify,Sol);
+		RE:=subs(S,REsol);
+		checkL:=[op(NegInd),op(Sinit)];
+		checkset:={seq(simplify(subs(checkL,eval(RE,[n=i,Sum=add]) mod m) mod m),i=(nL-numelems(Sol)-1)..nL)};
+		#print(checkset);
+		checkset:=remove(has,checkset,a);
+		return RE, S, evalb(checkset in {{0},{}})
+	end proc:
+	
+$include <NLDE/DalgFunGuess/modDalgFunGuess/modFixedOrdDegFunGuess/src/modFixedOrdDegFunGuess.mm>

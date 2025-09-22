@@ -6,10 +6,10 @@ option `Copyright (c) 2024 Bertrand Teguia Tabuguia, University of Oxford`, pack
 
 export arithmeticDalgSeq, unaryDalgSeq, PartialSumDalgSeq, PartialProdDalgSeq, 
        radicalDalgSeq, CCfiniteToDalg, HoloToSimpleRatrec, OrderDegreeRec, DDStoADE,
-       DalgGuess, deltakshift, AnsatzDalgSeq;
+       DalgGuess, deltakshift, AnsatzDalgSeq, modDalgGuess;
 
 local buildsystemseq, mergesystemseq, SystoDE, HoloToSimpleRatrecLA, HoloToSimpleRatrecGB,
-      checkingguess, REorders, shiftkstart;
+      checkingguess, REorders, shiftkstart, checkingguessmod;
 
 $include <NLDE/DalgSeq/arithmeticDalgSeq/src/arithmeticDalgSeq.mm>
 $include <NLDE/DalgSeq/unaryDalgSeq/src/unaryDalgSeq.mm>

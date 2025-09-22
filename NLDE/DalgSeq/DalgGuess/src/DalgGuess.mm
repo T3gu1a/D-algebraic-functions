@@ -34,10 +34,8 @@ DalgGuess := proc(L::list,
 			V:=[op(V),seq(c[i],i=N..M-1)];
 			N:=M
 		end if;
-		
 		#initial values
 		Sinit:=[seq(a(i-1)=L[i],i=1..nL)];			
-		
 		#initialization - DE and RE of the first iteration
 		RE:=add(V[i+1]*deltakshift(A,n,k,i),i=0..N-1);
 		#build the linear system
@@ -57,9 +55,10 @@ DalgGuess := proc(L::list,
 				REcheck, S, correct:=checkingguess(S,RE,Sinit,N,nL,A)
 			end if
 		end if;
+		N:=N+1;
 		while termfree and not(correct) do
-			V:=[op(V),c[N]];
-			RE:=RE+V[N+1]*deltakshift(A,n,k,N);
+			V:=[op(V),c[N-1]];
+			RE:=RE+V[N]*deltakshift(A,n,k,N-1);
 			Eq:=[seq(subs(Sinit,eval(RE,n=i)),i=0..N-1)];
 			termfree:=evalb(indets(Eq,a('integer'))={});
 			S:=try op(solve(Eq,V)) catch : NULL  end try;
@@ -91,3 +90,4 @@ DalgGuess := proc(L::list,
 $include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/deltakshift.mm>
 $include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/checkingguess.mm>
 $include <NLDE/DalgSeq/DalgGuess/SubProcedures/src/shiftkstart.mm>
+$include <NLDE/DalgSeq/DalgGuess/modDalgGuess/src/modDalgGuess.mm>
