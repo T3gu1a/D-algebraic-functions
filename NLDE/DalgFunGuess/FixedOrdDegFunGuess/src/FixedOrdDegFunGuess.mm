@@ -15,7 +15,7 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 		option `Copyright (c) 2025 Bertrand Teguia T.`;
 		description "Looking for an equation among all possible equations of the given maximum polynomial degree";
 		local  i::nonnegint,c::nothing,M::posint,V::list,j::nonnegint,
-		       nL::posint:=numelems(Sinit),termfree::truefalse:=true,ADE::algebraic,RE::algebraic,	
+		       nL::posint:=numelems(Sinit),hasterm::truefalse:=false,ADE::algebraic,RE::algebraic,	
 		       Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
 		       correct::truefalse:=false,Arbconst::list,REcheck::algebraic,
 		       l::list(nonnegint),Ll::list(list),m::nonnegint,degCoeffs::list(nonnegint);
@@ -26,30 +26,30 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 			Ll:=AllListPermutations(l);
 			j:=1;
 			M:=add(Ll[j])+N;
-			while j<=numelems(Ll) and not(correct) and termfree do
-				degCoeffs:=Ll[j];
-				V:=[seq(c[i],i=0..M-1)];
-				ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
-								  ,i=0..degCoeffs[j]),j=1..N);
-				RE:=ADEtoRE(ADE,Y,A,K);
-				Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
-				NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
-				Eq:=subs(NegInd,Eq);
-				termfree:=evalb(indets(Eq,a('integer'))={});
-				if termfree then
+			if M <= nL then
+				while j<=numelems(Ll) and not(correct) and not(hasterm) do
+					degCoeffs:=Ll[j];
+					V:=[seq(c[i],i=0..M-1)];
+					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
+									  ,i=0..degCoeffs[j]),j=1..N);
+					RE:=ADEtoRE(ADE,Y,A,K);
+					Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
+					NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
+					Eq:=subs(NegInd,Eq);
 					S:=SolveTools:-Linear(Eq,V,method=linsolver);
 					if S<>NULL then
 						if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
+							hasterm:=has(Eq,a);
 							S:=NULL
 						else
 							REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
 						end if
-					end if
-				end if;
-				j:=j+1
-			end do;
+					end if;
+					j:=j+1
+				end do
+			end if;
 			l:=prevlistnumber(degPoly,l);
-			termfree:=true
+			hasterm:=false
 		end do;
 		if correct then
 			ADE:=subs(S,ADE);
@@ -63,8 +63,7 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 			return ADE=0
 		else
 			return FAIL
-		end if     
-		       
+		end if      
 	end proc:
 	
 prevlistnumber := proc(maxn::nonnegint, L::list(nonnegint))

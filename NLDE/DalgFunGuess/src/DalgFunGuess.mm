@@ -13,8 +13,8 @@ DalgFunGuess:= proc(L::list,
 		description "Guessing D-algebraic functions (finding their differential equations)";
 		local  Y::anyfunc(name),y::name,x::name,A::anyfunc(name),a::name,n::name,i::nonnegint,
 		       c::nothing,N::posint,M::posint,V::list,j::nonnegint,Sinit::list(`=`),k::name,
-		       nL::posint:=numelems(L),termfree::truefalse:=true,ADE::algebraic,RE::algebraic,	
-		       K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
+		       nL::posint:=numelems(L),hasterm::truefalse:=false,ADE::algebraic,RE::algebraic,	
+		       Nmax:=ceil(nL/(degPoly+1)),K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
 		       NDE::algebraic,correct::boolean:=false,Arbconst::list,REcheck::algebraic,NRE::algebraic;
 		#minimal deltak order for starting order startfromord
 		N:=binomial(degADE+startfromord,degADE);
@@ -48,6 +48,9 @@ DalgFunGuess:= proc(L::list,
 		interface(warnlevel=4);
 		A:=a(n);
 		Sinit:=[seq(a(i-1)=L[i],i=1..nL)];
+		if M > nL then
+			return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver),FAIL)
+		end if;
 		#initialization - ADE and RE of the first iteration
 		ADE:=add(add(V[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
 		RE:=ADEtoRE(ADE,Y,A,K);
@@ -57,23 +60,22 @@ DalgFunGuess:= proc(L::list,
 		#NegInd: list for substituting terms with negative indices to zero
 		NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 		Eq:=subs(NegInd,Eq);
-		#too few initial values
-		termfree:=evalb(indets(Eq,a('integer'))={});
-		if not(termfree) then
-			return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver),FAIL)
-		end if;
 		#S:=try op(solve(Eq,V)) catch : NULL  end try;
 		S:=SolveTools:-Linear(Eq,V,method=linsolver);
 		if S<>NULL then
 			if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
-				S:=NULL
+				hasterm:=has(Eq,a);
+				S:=NULL;
+				if hasterm then
+					return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver),FAIL)
+				end if
 			else
 				#checking the solution
 				REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
 			end if
 		end if;
-		while termfree and not(correct) do
-			N:=N+1;
+		N:=N+1;
+		while not(correct) and N<Nmax do
 			V:=[op(V),seq(c[i],i=M..M+degPoly)];
 			NDE:=add(V[M+i]*x^(i-1)*AnsatzDalg:-deltakdiff(Y,x,degADE,N),i=1..degPoly+1);
 			ADE:=NDE+ADE;
@@ -85,18 +87,21 @@ DalgFunGuess:= proc(L::list,
 			#Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
 			NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 			Eq:=subs(NegInd,Eq);
-			termfree:=evalb(indets(Eq,a('integer'))={});
-			if termfree then
-				S:=SolveTools:-Linear(Eq,V,method=linsolver);
-				if S<>NULL then
-					if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
-						S:=NULL
-					else
-						#verification step
-						REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
+			S:=SolveTools:-Linear(Eq,V,method=linsolver);
+			if S<>NULL then
+				if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
+					#too few initial values
+					hasterm:=has(Eq,a);
+					S:=NULL;
+					if hasterm then
+						return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver),FAIL)
 					end if
+				else
+					#verification step
+					REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
 				end if
-			end if
+			end if;
+			N:=N+1
 		end do;
 		if correct then
 			ADE:=subs(S,ADE);

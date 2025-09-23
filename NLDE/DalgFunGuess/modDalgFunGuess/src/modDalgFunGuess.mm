@@ -7,15 +7,15 @@ modDalgFunGuess:= proc(L::list,
 	    startfromord::nonnegint:=0,
 	      allPolyDeg::truefalse:=false,
 	         modulus::posint:=7},
-		      $)::Or(identical(FAIL),`=`);
+	      	      $)::Or(identical(FAIL),`=`);
 		option `Copyright (c) 2025 Bertrand Teguia T.`;
 		description "Guessing D-algebraic functions (finding their differential equations)";
 		local  Y::anyfunc(name),y::name,x::name,A::anyfunc(name),a::name,n::name,i::nonnegint,
 		       c::nothing,N::posint,M::posint,V::list,j::nonnegint,Sinit::list(eq),k::name,
-		       nL::posint:=numelems(L),termfree::truefalse:=true,ADE::algebraic,RE::algebraic,	
-		       K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
+		       nL::posint:=numelems(L),hasterm::truefalse:=true,ADE::algebraic,RE::algebraic,	
+		       Nmax:=ceil(nL/(degPoly+1)),K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
 		       NDE::algebraic,correct::boolean:=false,Arbconst::list,REcheck::algebraic,NRE::algebraic,
-		       Terms::list(integer);
+		       Terms::list(integer),Meqs,beqs,Aindets;
 		       
 		Terms:= try map(term -> term mod modulus, L) catch : [] end try;
 		if Terms = [] then
@@ -53,6 +53,10 @@ modDalgFunGuess:= proc(L::list,
 		interface(warnlevel=4);
 		A:=a(n);
 		Sinit:=[seq(a(i-1)=Terms[i],i=1..nL)];
+		#underdetermined system
+		if M > nL then
+			return ifelse(allPolyDeg,modFixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,modulus),FAIL)
+		end if;
 		#initialization - ADE and RE of the first iteration
 		ADE:=add(add(V[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
 		RE:=ADEtoRE(ADE,Y,A,K);
@@ -62,22 +66,30 @@ modDalgFunGuess:= proc(L::list,
 		#NegInd: list for substituting terms with negative indices to zero
 		NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 		Eq:=subs(NegInd,Eq);
-		#too few initial values
-		termfree:=evalb(indets(Eq,a('integer'))={});
-		if not(termfree) then
-			return ifelse(allPolyDeg,modFixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,modulus),FAIL)
-		end if;
-		S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
+		Aindets:=[op(indets(Eq,a('integer')))];
+		Aindets:=[seq(Aindets[j]=cat(a,j),j=1..numelems(Aindets))];
+		Eq:=subs(Aindets,Eq);
+		#solving the linear system
+		Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
+		S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
+		S:= ifelse(type(S,list(algebraic)),S,NULL);
+		#S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
 		if S<>NULL then
-			if remove(v->rhs(v)=0,S)={} or has(map(lhs,S),a) then
-				S:=NULL
+			if remove(v->v=0,S)=[] or has(S,map(rhs,Aindets)) then
+				hasterm:=has(Eq,map(rhs,Aindets));
+				S:=NULL;
+				#too little initial values
+				if hasterm then
+					return ifelse(allPolyDeg,modFixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,modulus),FAIL)
+				end if
 			else
 				#checking the solution
+				S:=[seq(V[i]=S[i],i=1..M)];
 				REcheck, S, correct:=modcheckSol(S,RE,NegInd,Sinit,M,nL,a,n,modulus)
 			end if
 		end if;
-		while termfree and not(correct) do
-			N:=N+1;
+		N:=N+1;
+		while not(correct) and N<Nmax do
 			V:=[op(V),seq(c[i],i=M..M+degPoly)];
 			NDE:=add(V[M+i]*x^(i-1)*AnsatzDalg:-deltakdiff(Y,x,degADE,N),i=1..degPoly+1);
 			ADE:=NDE+ADE;
@@ -88,20 +100,30 @@ modDalgFunGuess:= proc(L::list,
 			M:=M+degPoly+1;
 			NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 			Eq:=subs(NegInd,Eq);
-			termfree:=evalb(indets(Eq,a('integer'))={});
-			if termfree then 
-				S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
-				if S<>NULL then
-					if remove(v->rhs(v)=0,S)={} or has(map(lhs,S),a) then
-						S:=NULL
-					else
-						#verification step
-						REcheck, S, correct:=modcheckSol(S,RE,NegInd,Sinit,M,nL,a,n,modulus)
+			Aindets:=[op(indets(Eq,a('integer')))];
+			Aindets:=[seq(Aindets[j]=cat(a,j),j=1..numelems(Aindets))];
+			Eq:=subs(Aindets,Eq);
+			#solving the linear system
+			Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
+			S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
+			S:= ifelse(type(S,list(algebraic)),S,NULL);
+			#S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
+			if S<>NULL then
+				if remove(v->v=0,S)=[] or has(S,map(rhs,Aindets)) then
+					hasterm:=has(Eq,map(rhs,Aindets));
+					S:=NULL;
+					if hasterm then
+						return ifelse(allPolyDeg,modFixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,modulus),FAIL)
 					end if
+				else
+					#verification step
+					S:=[seq(V[i]=S[i],i=1..M)];
+					REcheck, S, correct:=modcheckSol(S,RE,NegInd,Sinit,M,nL,a,n,modulus)
 				end if
-			end if
+			end if;
+			N:=N+1
 		end do;
-		if correct then
+		if correct then 
 			ADE:=subs(S,ADE);
 			Arbconst:=sort([op(remove(has,indets(REcheck),a) minus {n,op(K)})]);
 			if Arbconst <> [] then
