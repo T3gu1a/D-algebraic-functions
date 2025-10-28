@@ -61,9 +61,9 @@ DalgFunGuess:= proc(L::list,
 		NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 		Eq:=subs(NegInd,Eq);
 		#S:=try op(solve(Eq,V)) catch : NULL  end try;
-		S:=SolveTools:-Linear(Eq,V,method=linsolver);
+		S:=SolveTools:-Linear(remove(has,Eq,a),V,method=linsolver);
 		if S<>NULL then
-			if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
+			if remove(v->rhs(v)=0,S)={} then
 				hasterm:=has(Eq,a);
 				S:=NULL;
 				if hasterm then
@@ -75,7 +75,7 @@ DalgFunGuess:= proc(L::list,
 			end if
 		end if;
 		N:=N+1;
-		while not(correct) and N<Nmax do
+		while not(correct) and N<=Nmax do
 			V:=[op(V),seq(c[i],i=M..M+degPoly)];
 			NDE:=add(V[M+i]*x^(i-1)*AnsatzDalg:-deltakdiff(Y,x,degADE,N),i=1..degPoly+1);
 			ADE:=NDE+ADE;

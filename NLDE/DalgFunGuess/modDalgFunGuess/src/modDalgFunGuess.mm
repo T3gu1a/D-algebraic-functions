@@ -7,7 +7,7 @@ modDalgFunGuess:= proc(L::list,
 	    startfromord::nonnegint:=0,
 	      allPolyDeg::truefalse:=false,
 	         modulus::posint:=7},
-	      	      $)::Or(identical(FAIL),`=`);
+		      $)::Or(identical(FAIL),`=`);
 		option `Copyright (c) 2025 Bertrand Teguia T.`;
 		description "Guessing D-algebraic functions (finding their differential equations)";
 		local  Y::anyfunc(name),y::name,x::name,A::anyfunc(name),a::name,n::name,i::nonnegint,
@@ -63,6 +63,7 @@ modDalgFunGuess:= proc(L::list,
 		#write the RE for non-negative indices
 		#build the linear system and solve it
 		Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add]) mod modulus) mod modulus,i=0..M-1)];
+		#Eq:=map(i -> subs(Sinit, eval(RE, [n = i, Sum = add]) mod modulus) mod modulus, [$0 .. M-1]);
 		#NegInd: list for substituting terms with negative indices to zero
 		NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 		Eq:=subs(NegInd,Eq);

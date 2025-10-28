@@ -63,7 +63,8 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 			return ADE=0
 		else
 			return FAIL
-		end if      
+		end if     
+			       
 	end proc:
 	
 prevlistnumber := proc(maxn::nonnegint, L::list(nonnegint))
