@@ -19,3 +19,19 @@ checkSol:= proc(Sol::Or(list,set),
 		checkset:=remove(has,checkset,a);
 		return RE, S, evalb(checkset in {{0},{}})
 	end proc:
+
+polcheckSol:= proc(Sol::Or(list,set),
+		ADEsol::algebraic,
+		  solf::algebraic,
+		    nL::nonnegint,
+		     y::name,
+		     x::name,
+		     $)
+		local S::list, ADE::algebraic, checkADE::algebraic, deg::extended_numeric;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		S:=map(simplify,Sol);
+		ADE:=subs(S,ADEsol);
+		checkADE:=expand(eval(ADE,y(x)=solf));
+		deg:= degree(checkADE,x);
+		return ADE, S, evalb(checkADE=0 or deg>=nL)
+	end proc:

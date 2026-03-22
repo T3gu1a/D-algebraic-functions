@@ -5,8 +5,9 @@ option `Copyright (c) 2022-2024 Bertrand Teguia Tabuguia, Max Planck Institute f
 export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, MultiDalg,
        AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, DalgSeq, DalgFunGuess, modDalgFunGuess;
 
-local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, ordertoktuple, CheckSol, ADEtoRE, ADEtermToREterm, ADECauchyprod, poch
-      FixedOrdDegFunGuess,modFixedOrdDegFunGuess, modcheckSol, prevlistnumber, AllListPermutations;
+local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, ordertoktuple, CheckSol, ADEtoRE, ADEtermToREterm, ADECauchyprod, poch,
+      FixedOrdDegFunGuess, modFixedOrdDegFunGuess, modcheckSol, prevlistnumber, AllListPermutations, FFixedOrdDegFunGuess, polcheckSol,
+      modpolcheckSol, modFFixedOrdDegFunGuess;
 
 $include <NLDE/OrderDegreeADE/src/OrderDegreeADE.mm>
 $include <NLDE/CommonInternalProcedures/src/mergesystem.mm>

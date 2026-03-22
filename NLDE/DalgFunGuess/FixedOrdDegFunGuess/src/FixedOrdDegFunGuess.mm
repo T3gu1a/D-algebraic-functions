@@ -67,6 +67,67 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 			       
 	end proc:
 	
+FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
+			   degADE::posint,
+			  degPoly::nonnegint,
+				Y::anyfunc(name),
+				A::anyfunc(name),
+				N::nonnegint,
+				y::name,
+				x::name,
+			linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense):=AlgebraicFunction,
+			       $)::Or(identical(FAIL),`=`);
+			option `Copyright (c) 2026 Bertrand Teguia T.`;
+			description "Looking for an equation among all possible equations of the given maximum polynomial degree";
+			local  i::nonnegint,c::nothing,M::posint,V::list,j::nonnegint,
+			       nL::posint:=numelems(Sinit),ADE::algebraic,polEq::algebraic,	
+			       Eq::list(algebraic),S::Or(identical(NULL),list(algebraic)),
+			       correct::truefalse:=false,Arbconst::list,ADEcheck::algebraic,
+			       l::list(nonnegint),Ll::list(list),m::nonnegint,degCoeffs::list(nonnegint);
+			#minimal number of unknown
+			l:=[degPoly$N];
+			l:=prevlistnumber(degPoly,l);
+			while l<> FAIL and not(correct) do
+				Ll:=AllListPermutations(l);
+				j:=1;
+				M:=add(Ll[j])+N;
+				if M <= nL then
+					while j<=numelems(Ll) and not(correct) do
+						degCoeffs:=Ll[j];
+						V:=[seq(c[i],i=0..M-1)];
+						ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
+										  ,i=0..degCoeffs[j]),j=1..N);
+						polEq:=expand(eval(ADE,Y=Lf));
+						Eq:=[seq(coeff(polEq,x,i),i=0..M-1)];
+						S:=SolveTools:-Linear(Eq,V,method=linsolver);
+						if S<>NULL then
+							if remove(v->rhs(v)=0,S)={} then
+								S:=NULL
+							else
+								ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
+							end if
+						end if;
+						j:=j+1
+					end do
+				end if;
+				l:=prevlistnumber(degPoly,l)
+			end do;
+			if correct then
+				ADE:=subs(S,ADE);
+				Arbconst:=sort([op(indets(ADEcheck) minus {x,y,seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))})]);
+				if Arbconst <> [] then
+					`tools/genglobal`('_C',{},'reset');
+					Arbconst:=map(v->v=`tools/genglobal`('_C'),Arbconst);
+					ADE:=subs(Arbconst,ADE)
+				end if;
+				ADE:=collect(ADE,{seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))},'distributed');
+				return ADE=0
+			else
+				return FAIL
+			end if     
+			       
+	end proc:
+	
 prevlistnumber := proc(maxn::nonnegint, L::list(nonnegint))
 		local L1::list(nonnegint), N::posint; 
 		if L = [0 $ (numelems(L) - 1), maxn] then 
