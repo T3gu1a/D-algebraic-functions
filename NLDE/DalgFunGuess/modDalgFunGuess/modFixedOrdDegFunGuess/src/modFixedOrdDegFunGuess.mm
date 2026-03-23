@@ -115,6 +115,7 @@ modFFixedOrdDegFunGuess:= proc(Lf::algebraic,
 							if remove(v->v=0,S)=[] then
 								S:=NULL
 							else
+								S:=[seq(V[i]=S[i],i=1..M)];
 								ADEcheck, S, correct:=modpolcheckSol(S,ADE,Lf,nL,y,x,modulus)
 							end if
 						end if;

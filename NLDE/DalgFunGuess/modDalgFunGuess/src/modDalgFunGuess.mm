@@ -107,6 +107,7 @@ modDalgFunGuess:= proc(L::list,
 					if remove(v->v=0,S)=[] then
 						S:=NULL
 					else
+						S:=[seq(V[i]=S[i],i=1..M)];
 						ADEcheck, S, correct:=modpolcheckSol(S,ADE,Lf,nL,y,x,modulus)
 					end if
 				end if
@@ -154,7 +155,8 @@ modDalgFunGuess:= proc(L::list,
 						if remove(v->v=0,S)=[] then
 							S:=NULL
 						else
-							ADEcheck, S, correct:=modpolcheckSol(S,ADE,Lf,nl,y,x,modulus)
+							S:=[seq(V[i]=S[i],i=1..M)];
+							ADEcheck, S, correct:=modpolcheckSol(S,ADE,Lf,nL,y,x,modulus)
 						end if
 					end if
 				end if;
