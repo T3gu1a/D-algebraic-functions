@@ -73,7 +73,7 @@ DalgFunGuess:= proc(L::list,
 				Eq:=subs(NegInd,Eq);
 			else
 				polEq:=expand(eval(ADE,Y=Lf));
-				Eq:=[seq(coeff(polEq,x,i),i=0..M-1)]
+				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]
 			end if;
 			#S:=try op(solve(Eq,V)) catch : NULL  end try;
 			S:=ifelse(approach=recurrence,SolveTools:-Linear(remove(has,Eq,a),V,method=linsolver),
@@ -116,7 +116,7 @@ DalgFunGuess:= proc(L::list,
 				else
 					NpolEq:=expand(eval(NDE,Y=Lf));
 					polEq:=polEq+NpolEq;
-					Eq:=[seq(coeff(polEq,x,i),i=0..M+degPoly+1)]
+					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1]
 				end if;
 				M:=M+degPoly+1;
 				S:=SolveTools:-Linear(Eq,V,method=linsolver);

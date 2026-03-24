@@ -98,7 +98,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 						ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 										  ,i=0..degCoeffs[j]),j=1..N);
 						polEq:=expand(eval(ADE,Y=Lf));
-						Eq:=[seq(coeff(polEq,x,i),i=0..M-1)];
+						Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)];
 						S:=SolveTools:-Linear(Eq,V,method=linsolver);
 						if S<>NULL then
 							if remove(v->rhs(v)=0,S)={} then

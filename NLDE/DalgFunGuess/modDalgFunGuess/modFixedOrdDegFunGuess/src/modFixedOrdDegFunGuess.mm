@@ -107,7 +107,7 @@ modFFixedOrdDegFunGuess:= proc(Lf::algebraic,
 						ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 										  ,i=0..degCoeffs[j]),j=1..N);
 						polEq:=expand(eval(ADE,Y=Lf)) mod modulus;
-						Eq:=[seq(coeff(polEq,x,i),i=0..M-1)];
+						Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)];
 						Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
 						S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 						S:= ifelse(type(S,list(algebraic)),S,NULL);
