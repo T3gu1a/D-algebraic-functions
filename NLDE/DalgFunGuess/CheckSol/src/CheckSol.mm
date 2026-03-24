@@ -32,6 +32,6 @@ polcheckSol:= proc(Sol::Or(list,set),
 		S:=map(simplify,Sol);
 		ADE:=subs(S,ADEsol);
 		checkADE:=expand(eval(ADE,y(x)=solf));
-		deg:= degree(checkADE,x);
-		return ADE, S, evalb(checkADE=0 or deg>=nL)
+		deg:= ldegree(checkADE,x);
+		return ADE, S, evalb(checkADE=0 or deg>=nL-PDEtools:-difforder(ADE,x))
 	end proc:
