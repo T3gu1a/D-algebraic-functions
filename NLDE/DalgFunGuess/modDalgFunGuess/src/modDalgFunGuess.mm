@@ -6,7 +6,7 @@ modDalgFunGuess:= proc(L::list,
 	          devars::anyfunc(name):=NULL,
 	    startfromord::nonnegint:=0,
 	      allPolyDeg::truefalse:=false,
-	        approach::identical(recurrence,polynomialsubs):=recurrence,
+	        approach::identical(recurrence,polynomialsubs):=polynomialsubs,
 	         modulus::posint:=7},
 		      $)::Or(identical(FAIL),`=`);
 			option `Copyright (c) 2025 Bertrand Teguia T.`;

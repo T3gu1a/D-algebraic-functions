@@ -7,7 +7,7 @@ DalgFunGuess:= proc(L::list,
 		       devars::anyfunc(name):=NULL,
 	         startfromord::nonnegint:=0,
 		   allPolyDeg::truefalse:=false,
-		     approach::identical(recurrence,polynomialsubs):=recurrence,
+		     approach::identical(recurrence,polynomialsubs):=polynomialsubs,
 		    linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense):=AlgebraicFunction},
 			   $)::Or(identical(FAIL),`=`);
 			option `Copyright (c) 2025 Bertrand Teguia T.`;
