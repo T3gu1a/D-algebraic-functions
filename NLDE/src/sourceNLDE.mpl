@@ -3,7 +3,7 @@ NLDE:= module()
 option `Copyright (c) 2022-2024 Bertrand Teguia Tabuguia, Max Planck Institute for MiS, Germany, University of Oxford, UK`, package;
 
 export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDalg, MultiDalg,
-       AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, DalgSeq, DalgFunGuess, modDalgFunGuess;
+       AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, DalgSeq, DalgFunGuess, modDalgFunGuess, ADEtoRec;
 
 local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, ordertoktuple, CheckSol, ADEtoRE, ADEtermToREterm, ADECauchyprod, poch,
       FixedOrdDegFunGuess, modFixedOrdDegFunGuess, modcheckSol, prevlistnumber, AllListPermutations, FFixedOrdDegFunGuess, polcheckSol,

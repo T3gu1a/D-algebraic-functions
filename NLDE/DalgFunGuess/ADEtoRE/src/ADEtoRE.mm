@@ -15,6 +15,15 @@ ADEtoRE := proc(ADE::algebraic,Y::anyfunc(name),A::anyfunc(name),K::list(name),$
 		#Return the sum recurrence terms
 		return add(RE)
 	end proc:
+
+#exported procedure
+ADEtoRec := proc(ADE::algebraic,Y::anyfunc(name),{A::anyfunc(name):=a(n),indexsum::name:=k},$)::algebraic;
+		local degADE::nonnegint, j::nonnegint;
+		option `Copyright (c) 2026 Bertrand Teguia T.`;
+		description "exporting ADEtoRE";
+		degADE:=OrderDegreeADE(ADE,Y)[2];
+		return ADEtoRE(ADE,Y,A,[seq(cat(indexsum,j),j=0..degADE-1)])
+	end proc:
 	
 ADEtermToREterm:= proc(term::algebraic,Y::anyfunc(name),A::anyfunc(name),K::list(name),$)::algebraic;
 		local x,n,j,q,mterm,Ldiff,Lrec,xpow,c,Cauchyterm,i;
