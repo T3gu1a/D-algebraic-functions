@@ -8,24 +8,24 @@ modFFixedOrdDegFunGuess:= proc(        Lf::algebraic,
 				        x::name,
 			          modulus::posint,
 			   inputConstants::set(name),
+			         sparsity::fraction,
 			               $)::Or(identical(FAIL),`=`);
 			option `Copyright (c) 2026 Bertrand Teguia T.`;
 			description "Looking for an equation among all possible equations of the given maximum polynomial degree";
-			local  i::nonnegint,c::nothing,M::posint,V::list,j::nonnegint,k::posint,
+			local  i::nonnegint,c::nothing,M::posint,V::list,j::nonnegint,
 			       nL::posint:=degree(Lf,x)+1,ADE::algebraic,polEq::algebraic,	
 			       Eq::list(algebraic),S::Or(identical(NULL),list(algebraic)),
 			       correct::truefalse:=false,Arbconst::list,ADEcheck::algebraic,Meqs,beqs,
-			       MnL::posint,ZerosV::list,zV::list,zzV::list,unkV::list;
+			       MnL::posint,ZerosV,zV,zzV::list,unkV::list;
 			#minimal number of unknown
 			M:=(degPoly+1)*N;
 			V:=[seq(c[i],i=0..M-1)];
 			if M>nL then
 				MnL:=ceil((1+sparsity)*M-nL);
-				ZerosV:=combinat:-choose(V,MnL);
-				#ZerosV:=map(t->op(t),[seq(combinat:-choose(V,j),j=MnL1..MnL,-1)]);
-				k:=1;
-				while k<= numelems(ZerosV) and not(correct) do
-					zV:=ZerosV[k];
+				ZerosV:=Iterator:-Combination(M, MnL);
+				for zV in ZerosV do
+					zzV := [seq(c[i], i in zV)];
+					zzV:=map(t->t=0,zzV);
 					zzV:=map(t->t=0,zV);
 					unkV:=subs(zzV,V);
 					ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
@@ -43,7 +43,9 @@ modFFixedOrdDegFunGuess:= proc(        Lf::algebraic,
 							ADEcheck, S, correct:=modpolcheckSol(S,ADE,Lf,nL,y,x,modulus)
 						end if
 					end if;
-					k:=k+1
+					if correct then
+						break
+					end if
 				end do
 			else
 				ADE:=add(add(V[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);

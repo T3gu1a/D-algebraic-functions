@@ -88,7 +88,7 @@ modDalgFunGuess:= proc(     L::list,
 				Aindets:=[seq(Aindets[j]=cat(a,j),j=1..numelems(Aindets))];
 				Eq:=subs(Aindets,Eq)
 			else
-				polEq:=expand(eval(ADE,Y=Lf));
+				polEq:=expand(eval(ADE,Y=Lf) mod modulus) mod modulus;
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M] #[seq(coeff(polEq,x,i),i=0..M-1)]
 			end if;
 			#solving the linear system
@@ -135,8 +135,8 @@ modDalgFunGuess:= proc(     L::list,
 					Aindets:=[seq(Aindets[j]=cat(a,j),j=1..numelems(Aindets))];
 					Eq:=subs(Aindets,Eq)
 				else 
-					NpolEq:=expand(eval(NDE,Y=Lf));
-					polEq:=polEq+NpolEq;
+					NpolEq:=expand(eval(NDE,Y=Lf) mod modulus) mod modulus;
+					polEq:=polEq+NpolEq mod modulus;
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1] #[seq(coeff(polEq,x,i),i=0..M+degPoly+1)]
 				end if;
 				M:=M+degPoly+1;
