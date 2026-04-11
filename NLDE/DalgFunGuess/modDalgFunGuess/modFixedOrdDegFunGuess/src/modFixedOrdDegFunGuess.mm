@@ -91,7 +91,7 @@ modFFixedOrdDegFunGuess2:= proc(       Lf::algebraic,
 			                y::name,
 				        x::name,
 			          modulus::posint,
-			   inputConstants::set(name),
+				inputConstants::set(name),
 			               $)::Or(identical(FAIL),`=`);
 			option `Copyright (c) 2026 Bertrand Teguia T.`;
 			description "Looking for an equation among all possible equations of the given maximum polynomial degree";
@@ -100,20 +100,17 @@ modFFixedOrdDegFunGuess2:= proc(       Lf::algebraic,
 			       Eq::list(algebraic),S::Or(identical(NULL),list(algebraic)),
 			       correct::truefalse:=false,Arbconst::list,ADEcheck::algebraic,Meqs,beqs,
 			       l::list(nonnegint),Ll::list(list),m::nonnegint,degCoeffs::list(nonnegint);
-			#minimal number of unknown
 			l:=[degPoly$N];
 			l:=prevlistnumber(degPoly,l);
 			while l<> FAIL and not(correct) do
-				Ll:=AllListPermutations(l);
-				j:=1;
-				M:=add(Ll[j])+N;
-				if M <= nL then
-					while j<=numelems(Ll) and not(correct) do
-						degCoeffs:=Ll[j];
+				M:=add(l)+N;
+				if M<=nL then
+					Ll:=Iterator:-Permute(l,N);
+					for degCoeffs in Ll do
 						V:=[seq(c[i],i=0..M-1)];
 						ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 										  ,i=0..degCoeffs[j]),j=1..N);
-						polEq:=expand(eval(ADE,Y=Lf)) mod modulus;
+						polEq:=expand(eval(ADE,Y=Lf) mod modulus) mod modulus;
 						Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)];
 						Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
 						S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
@@ -126,7 +123,9 @@ modFFixedOrdDegFunGuess2:= proc(       Lf::algebraic,
 								ADEcheck, S, correct:=modpolcheckSol(S,ADE,Lf,nL,y,x,modulus)
 							end if
 						end if;
-						j:=j+1
+						if correct then
+							break
+						end if
 					end do
 				end if;
 				l:=prevlistnumber(degPoly,l)
@@ -160,7 +159,7 @@ modFixedOrdDegFunGuess:= proc(        Sinit::list,
 				          n::name,
 				          K::list,
 			            modulus::posint,
-			     inputConstants::set(name),
+				  inputConstants::set(name),
 			                 $)::Or(identical(FAIL),`=`);
 			option `Copyright (c) 2025 Bertrand Teguia T.`;
 			description "Looking for an equation among all possible equations of the given maximum polynomial degree";
@@ -169,16 +168,13 @@ modFixedOrdDegFunGuess:= proc(        Sinit::list,
 			       Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
 			       correct::truefalse:=false,Arbconst::list,REcheck::algebraic,Aindets,Meqs,beqs,
 			       l::list(nonnegint),Ll::list(list),m::nonnegint,degCoeffs::list(nonnegint);
-			#minimal number of unknown
 			l:=[degPoly$N];
 			l:=prevlistnumber(degPoly,l);
 			while l<> FAIL and not(correct) do
-				Ll:=AllListPermutations(l);
-				j:=1;
-				M:=add(Ll[j])+N;
+				M:=add(l)+N;
 				if M <= nL then
-					while j<=numelems(Ll) and not(correct) and not(hasterm) do
-						degCoeffs:=Ll[j];
+					Ll:=Iterator:-Permute(l,N);
+					for degCoeffs in Ll do:
 						V:=[seq(c[i],i=0..M-1)];
 						ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 										  ,i=0..degCoeffs[j]),j=1..N);
@@ -189,12 +185,9 @@ modFixedOrdDegFunGuess:= proc(        Sinit::list,
 						Aindets:=[op(indets(Eq,a('integer')))];
 						Aindets:=[seq(Aindets[j]=cat(a,j),j=1..numelems(Aindets))];
 						Eq:=subs(Aindets,Eq);
-						#solving the linear system
 						Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
 						S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 						S:= ifelse(type(S,list(algebraic)),S,NULL);
-						#termfree:=evalb(indets(Eq,a('integer'))={});
-						#S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
 						if S<>NULL then
 							if remove(v->v=0,S)=[] or has(S,map(rhs,Aindets))  then
 								hasterm:=has(Eq,map(rhs,Aindets));
@@ -204,7 +197,9 @@ modFixedOrdDegFunGuess:= proc(        Sinit::list,
 								REcheck, S, correct:=modcheckSol(S,RE,NegInd,Sinit,M,nL,a,n,modulus)
 							end if
 						end if;
-						j:=j+1
+						if correct or hasterm then
+							break
+						end if
 					end do
 				end if;
 				l:=prevlistnumber(degPoly,l);

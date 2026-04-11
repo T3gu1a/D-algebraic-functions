@@ -11,7 +11,7 @@ FixedOrdDegFunGuess:= proc(        Sinit::list,
 				       n::name,
 				       K::list,
 			       linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense),
-			  inputConstants::set(name),
+			       inputConstants::set(name),
 			              $)::Or(identical(FAIL),`=`);
 			option `Copyright (c) 2025 Bertrand Teguia T.`;
 			description "Looking for an equation among all possible equations of the given maximum polynomial degree";
@@ -19,17 +19,14 @@ FixedOrdDegFunGuess:= proc(        Sinit::list,
 			       nL::posint:=numelems(Sinit),hasterm::truefalse:=false,ADE::algebraic,RE::algebraic,	
 			       Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
 			       correct::truefalse:=false,Arbconst::list,REcheck::algebraic,
-			       l::list(nonnegint),Ll::list(list),m::nonnegint,degCoeffs::list(nonnegint);
-			#minimal number of unknown
+			       l::list(nonnegint),Ll,m::nonnegint,degCoeffs::list(nonnegint);
 			l:=[degPoly$N];
 			l:=prevlistnumber(degPoly,l);
 			while l<> FAIL and not(correct) do
-				Ll:=AllListPermutations(l);
-				j:=1;
-				M:=add(Ll[j])+N;
+				M:=add(l)+N;
 				if M <= nL then
-					while j<=numelems(Ll) and not(correct) and not(hasterm) do
-						degCoeffs:=Ll[j];
+					Ll:=Iterator:-Permute(l,N);
+					for degCoeffs in Ll do:
 						V:=[seq(c[i],i=0..M-1)];
 						ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 										  ,i=0..degCoeffs[j]),j=1..N);
@@ -46,7 +43,9 @@ FixedOrdDegFunGuess:= proc(        Sinit::list,
 								REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
 							end if
 						end if;
-						j:=j+1
+						if correct or hasterm then
+							break
+						end if
 					end do
 				end if;
 				l:=prevlistnumber(degPoly,l);
@@ -142,7 +141,7 @@ FFixedOrdDegFunGuess:= proc(           Lf::algebraic,
 			       
 	end proc:
 	
-FFixedOrdDegFunGuess2:= proc(          Lf::algebraic,
+FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 			           degADE::posint,
 			          degPoly::nonnegint,
 			                Y::anyfunc(name),
@@ -150,7 +149,7 @@ FFixedOrdDegFunGuess2:= proc(          Lf::algebraic,
 			                y::name,
 				        x::name,
 			        linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense),
-		           inputConstants::set(name),
+				constants::set(name),
 			               $)::Or(identical(FAIL),`=`);
 			option `Copyright (c) 2026 Bertrand Teguia T.`;
 			description "Looking for an equation among all possible equations of the given maximum polynomial degree";
@@ -159,16 +158,13 @@ FFixedOrdDegFunGuess2:= proc(          Lf::algebraic,
 			       Eq::list(algebraic),S::Or(identical(NULL),list(algebraic)),
 			       correct::truefalse:=false,Arbconst::list,ADEcheck::algebraic,
 			       l::list(nonnegint),Ll::list(list),m::nonnegint,degCoeffs::list(nonnegint);
-			#minimal number of unknown
 			l:=[degPoly$N];
 			l:=prevlistnumber(degPoly,l);
 			while l<> FAIL and not(correct) do
-				Ll:=AllListPermutations(l);
-				j:=1;
-				M:=add(Ll[j])+N;
-				if M <= nL then
-					while j<=numelems(Ll) and not(correct) do
-						degCoeffs:=Ll[j];
+				M:=add(l)+N;
+				if M<=nL then
+					Ll:=Iterator:-Permute(l,N);
+					for degCoeffs in Ll do
 						V:=[seq(c[i],i=0..M-1)];
 						ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 										  ,i=0..degCoeffs[j]),j=1..N);
@@ -182,7 +178,9 @@ FFixedOrdDegFunGuess2:= proc(          Lf::algebraic,
 								ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
 							end if
 						end if;
-						j:=j+1
+						if correct then
+							break
+						end if
 					end do
 				end if;
 				l:=prevlistnumber(degPoly,l)
@@ -190,7 +188,7 @@ FFixedOrdDegFunGuess2:= proc(          Lf::algebraic,
 			if correct then
 				ADE:=subs(S,ADE);
 				Arbconst:=sort([op(indets(ADEcheck) 
-					minus (inputConstants union {x,y,seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))}))]);
+					minus (constants union {x,y,seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))}))]);
 				if Arbconst <> [] then
 					`tools/genglobal`('_C',{},'reset');
 					Arbconst:=map(v->v=`tools/genglobal`('_C'),Arbconst);
