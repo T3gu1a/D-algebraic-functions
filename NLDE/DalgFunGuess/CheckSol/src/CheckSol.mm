@@ -22,16 +22,20 @@ checkSol:= proc(Sol::Or(list,set),
 
 polcheckSol:= proc(Sol::Or(list,set),
 		ADEsol::algebraic,
-		  solf::algebraic,
+		 Sinit::list,
+		     a::name,
 		    nL::nonnegint,
 		     y::name,
 		     x::name,
 		     $)
-		local S::list, ADE::algebraic, checkADE::algebraic, deg::extended_numeric;
-		option `Copyright (c) 2022 Bertrand Teguia T.`;
-		S:=map(simplify,Sol);
-		ADE:=subs(S,ADEsol);
-		checkADE:=expand(eval(ADE,y(x)=solf));
-		deg:= ldegree(checkADE,x);
-		return ADE, S, evalb(checkADE=0 or deg>=nL-PDEtools:-difforder(ADE,x))
-	end proc:
+	local S::list, ADE::algebraic, i::nonnegint,
+	      solf::algebraic:=add(a(i)*x^i,i=0..nL-1),checkADE::algebraic, deg::extended_numeric;
+	option `Copyright (c) 2022 Bertrand Teguia T.`;
+	S:=map(simplify,Sol);
+	ADE:=subs(S,ADEsol);
+	checkADE:=expand(eval(ADE,y(x)=solf));
+	checkADE:=subs(Sinit,checkADE);
+	#checkADE:=expand(checkADE);
+	deg:= ldegree(checkADE,x);
+	return ADE, S, evalb(checkADE=0 or deg>=nL-PDEtools:-difforder(ADE,x))
+end proc:
