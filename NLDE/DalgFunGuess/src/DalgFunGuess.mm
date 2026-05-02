@@ -4,14 +4,15 @@
 DalgFunGuess:= proc(L::list,
 	      {degADE::posint:=2,
 	      degPoly::nonnegint:=2,
+       termsOfDegPoly::posint:=1,
 	       devars::anyfunc(name):=NULL,
 	 startfromord::nonnegint:=0,
 	   allPolyDeg::truefalse:=false,
 	     sparsity::Or(And(positive, fraction), identical(0)):=0,
-	 maxIteration::posint:=1000,
+	 maxIteration::Or(posint,identical(infinity)):=1000,
 	     approach::identical(recurrence,polynomialsubs):=polynomialsubs,
        inputConstants::set(name):={},
-	    linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense):=AlgebraicFunction},
+	    linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense,HardSystem):=AlgebraicFunction},
 		   $)::Or(identical(FAIL),`=`,list(`=`));
 		option `Copyright (c) 2025 Bertrand Teguia T.`;
 		description "Guessing D-algebraic functions (finding their differential equations)";
@@ -20,7 +21,7 @@ DalgFunGuess:= proc(L::list,
 		       nL::posint:=numelems(L),hasterm::truefalse:=false,ADE::algebraic,RE::algebraic,polEq::algebraic,	
 		       Nmax:=ceil(nL/(degPoly+1)),K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
 		       NDE::algebraic,correct::boolean:=false,Arbconst::list,REcheck::algebraic,NRE::algebraic,NpolEq::algebraic,
-		       ADEcheck::algebraic,Param::set:=inputConstants;
+		       ADEcheck::algebraic,Param::set:=inputConstants,Meqs,beqs;
 		#minimal deltak order for starting order startfromord
 		N:=binomial(degADE+startfromord,degADE);
 		#minimal number of unknown
@@ -60,11 +61,17 @@ DalgFunGuess:= proc(L::list,
 		end if;
 		if M > nL then
 			if approach=recurrence then
+				if nL-N<termsOfDegPoly*degPoly then
+					N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
+				end if;
 				return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 			else
 				if sparsity<>0 then
 					return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
 				else
+					if nL-N<termsOfDegPoly*degPoly then
+						N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
+					end if;
 					return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
 				end if
 			end if
@@ -82,17 +89,26 @@ DalgFunGuess:= proc(L::list,
 		else
 			polEq:=expand(eval(ADE,Y=Lf));
 			polEq:=subs(Sinit,polEq);
-			Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M] #[seq(coeff(polEq,x,i),i=0..M-1)] -- not efficient
+			Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)] -- not efficient
 		end if;
 		#S:=try op(solve(Eq,V)) catch : NULL  end try;
-		S:=ifelse(approach=recurrence,SolveTools:-Linear(remove(has,Eq,a),V,method=linsolver),
-			SolveTools:-Linear(Eq,V,method=linsolver));
+		if linsolver=HardSystem then
+			Meqs, beqs := ifelse(approach=recurrence,LinearAlgebra:-GenerateMatrix(remove(has,Eq,a), V),LinearAlgebra:-GenerateMatrix(Eq, V));
+			S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
+			S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. numelems(V))},NULL);
+		else
+			S:=ifelse(approach=recurrence,SolveTools:-Linear(remove(has,Eq,a),V,method=linsolver),
+			SolveTools:-Linear(Eq,V,method=linsolver))
+		end if;
 		if S<>NULL then
 			if approach=recurrence then
 				if remove(v->rhs(v)=0,S)={} then
 					hasterm:=has(Eq,a);
 					S:=NULL;
 					if hasterm then
+						if nL-N<termsOfDegPoly*degPoly then
+							N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
+						end if;
 						return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 					end if
 				else
@@ -124,10 +140,16 @@ DalgFunGuess:= proc(L::list,
 			else
 				NpolEq:=expand(eval(NDE,Y=Lf));
 				polEq:=polEq+subs(Sinit,NpolEq);
-				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1] 
+				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1]
 			end if;
 			M:=M+degPoly+1;
-			S:=SolveTools:-Linear(Eq,V,method=linsolver);
+			if linsolver=HardSystem then
+				Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, V);
+				S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
+				S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. numelems(V))},NULL);
+			else
+				S:=SolveTools:-Linear(Eq,V,method=linsolver)
+			end if;
 			if S<>NULL then
 				if approach=recurrence then
 					if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
@@ -135,6 +157,9 @@ DalgFunGuess:= proc(L::list,
 						hasterm:=has(Eq,a);
 						S:=NULL;
 						if hasterm then
+							if nL-N<termsOfDegPoly*degPoly then
+								N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
+							end if;
 							return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 						end if
 					else
@@ -171,11 +196,17 @@ DalgFunGuess:= proc(L::list,
 			return ADE=0
 		else
 			if approach=recurrence then
+				if nL-N<termsOfDegPoly*degPoly then
+					N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
+				end if;
 				return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 			else 
 				if sparsity<>0 then
 					return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
 				else
+					if nL-N<termsOfDegPoly*degPoly then
+						N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
+					end if;
 					return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
 				end if
 			end if

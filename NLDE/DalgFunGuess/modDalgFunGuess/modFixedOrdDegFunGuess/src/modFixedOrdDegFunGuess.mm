@@ -9,7 +9,7 @@ modFFixedOrdDegFunGuess:= proc(Lf::algebraic,
 				y::name,
 				x::name,
 			  modulus::posint,
-		     maxIteration::posint,
+		     maxIteration::Or(posint,identical(infinity)),
 		   inputConstants::set(name),
 			 sparsity::fraction,
 			       $)::Or(identical(FAIL),`=`);
@@ -22,6 +22,7 @@ modFFixedOrdDegFunGuess:= proc(Lf::algebraic,
 		       MnL::posint,ZerosV,zV,zzV::list,unkV::list,pcentge,total_combs,pool,nleft,idx;
 		
 		M:=(degPoly+1)*N;
+		#the user fixes the maximum of zero-coefficients with minimum possible value 1-nL/M
 		pcentge:=max(sparsity,1-nL/M);
 		MnL:=ceil(pcentge*M);
 		total_combs:=binomial(M,MnL);
@@ -55,7 +56,7 @@ modFFixedOrdDegFunGuess:= proc(Lf::algebraic,
 		else
 			randpick:=rand(1..M);
 			to maxIteration do
-				pool:=table([seq(i=i,i=1..M)]);
+				pool:=table([seq(i+1=i,i=0..M-1)]);
 				nleft:=M;
 				if 2*MnL<M then
 					zV:=Array(1..MnL);
@@ -75,7 +76,7 @@ modFFixedOrdDegFunGuess:= proc(Lf::algebraic,
 						unassign('pool[nleft]');
 						nleft:=nleft-1
 					end do;
-					zV:=convert({seq(1..M)} minus convert(zV,set),list)
+					zV:=convert({seq(0..M-1)} minus convert(zV,set),list)
 				end if;
 				zzV:=[seq(c[idx], idx in zV)];
 				zzV:=map(t->t=0,zzV);
@@ -130,7 +131,7 @@ modFFixedOrdDegFunGuess2:= proc(Lf::algebraic,
 				 N::nonnegint,
 				 y::name,
 				 x::name,
-		      maxIteration::posint,
+		      maxIteration::Or(posint,identical(infinity)),
 			   modulus::posint,
 		    inputConstants::set(name),
 				$)::Or(identical(FAIL),`=`);
@@ -228,7 +229,7 @@ modFixedOrdDegFunGuess:= proc(Sinit::list,
 				  a::name,
 				  n::name,
 				  K::list,
-		       maxIteration::posint,
+		       maxIteration::Or(posint,identical(infinity)),
 			    modulus::posint,
 	             inputConstants::set(name),
 				 $)::Or(identical(FAIL),`=`);

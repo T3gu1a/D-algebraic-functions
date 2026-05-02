@@ -10,8 +10,8 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 			       a::name,
 			       n::name,
 			       K::list,
-		       linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense),
-		    maxIteration::posint,
+		       linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense,HardSystem),
+		    maxIteration::Or(posint,identical(infinity)),
 		  inputConstants::set(name),
 			      $)::Or(identical(FAIL),`=`);
 		option `Copyright (c) 2025 Bertrand Teguia T.`;
@@ -22,13 +22,13 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 		       correct::truefalse:=false,Arbconst::list,REcheck::algebraic,Meqs,beqs,ul::list,tl,
 		       l::list(nonnegint),Ll,m::nonnegint,degCoeffs::list(nonnegint),freqs,total_perms;
 		
-		l:=GenMaxlistnumber(N,degPoly,max(nL-N,0));
+		l:=GenMaxlistnumber(N,degPoly,nL-N);
 		ul:=sort([op({op(l)})]);
 		tl:=Statistics:-Tally(l);
 		freqs:=Array([seq(eval(val, tl), val = ul)], datatype = integer);
 		total_perms:=MultinomialCount(freqs);	
 		while l<> FAIL and not(correct) do
-			if total_perms < maxIteration then
+			if total_perms < maxIteration and linsolver <> HardSystem then
 				Ll:=Iterator:-Permute(l,N);
 				M:=add(l)+N;
 				for degCoeffs in Ll do:
@@ -57,9 +57,9 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 				end do
 			else
 				randpick:=rand(1..total_perms);
-				degCoeffs:=copy(l);
 				M:=add(l)+N;
 				to maxIteration do
+					degCoeffs:=UnrankMultiset(randpick(), Array(ul), freqs, N);
 					V:=[seq(c[i],i=0..M-1)];
 					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
@@ -81,8 +81,7 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 					end if;
 					if correct or hasterm then
 						break
-					end if;
-					degCoeffs:=UnrankMultiset(randpick(), Array(ul), freqs, N)
+					end if
 				end do
 			end if;
 			l:=prevlistnumber(degPoly,l);
@@ -113,8 +112,8 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				N::nonnegint,
 				y::name,
 				x::name,
-			linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense),
-		     maxIteration::posint,
+			linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense,HardSystem),
+		     maxIteration::Or(posint,identical(infinity)),
 		   inputConstants::set(name),
 			 sparsity::fraction,
 			       $)::Or(identical(FAIL),`=`);
@@ -130,7 +129,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 		MnL:=ceil(pcentge*M);
 		total_combs:=binomial(M,MnL);
 		V:=[seq(c[i],i=0..M-1)];
-		if total_combs < maxIteration then
+		if total_combs < maxIteration and linsolver <> HardSystem then
 			ZerosV:=Iterator:-Combination(M, MnL);
 			for zV in ZerosV do
 				zzV := [seq(c[idx], idx in zV)];
@@ -159,7 +158,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 		else
 			randpick:=rand(1..M);
 			to maxIteration do
-				pool:=table([seq(i=i,i=1..M)]);
+				pool:=table([seq(i+1=i,i=0..M-1)]);
 				nleft:=M;
 				if 2*MnL<M then
 					zV:=Array(1..MnL);
@@ -179,7 +178,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 						unassign('pool[nleft]');
 						nleft:=nleft-1
 					end do;
-					zV:=convert({seq(1..M)} minus convert(zV,set),list)
+					zV:=convert({seq(0..M-1)} minus convert(zV,set),list)
 				end if;
 				zzV:=[seq(c[idx], idx in zV)];
 				zzV:=map(t->t=0,zzV);
@@ -231,8 +230,8 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 				N::nonnegint,
 				y::name,
 				x::name,
-			linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense),
-		     maxIteration::posint,
+			linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense,HardSystem),
+		     maxIteration::Or(posint,identical(infinity)),
 			constants::set(name),
 			       $)::Or(identical(FAIL),`=`);
 		option `Copyright (c) 2026 Bertrand Teguia T.`;
@@ -242,13 +241,13 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 		       Eq::list(algebraic),S::Or(identical(NULL),list(algebraic)),tl,freqs,val,
 		       correct::truefalse:=false,Arbconst::list,ADEcheck::algebraic,ul::list,Meqs,beqs,
 		       l::list(nonnegint),Ll::list(list),m::nonnegint,degCoeffs::list(nonnegint);
-		l:=GenMaxlistnumber(N,degPoly,max(nL-N,0));
+		l:=GenMaxlistnumber(N,degPoly,nL-N);
 		while l<> FAIL and not(correct) do
 			ul:=sort([op({op(l)})]);
 			tl:=Statistics:-Tally(l);
 			freqs:=Array([seq(eval(val, tl), val = ul)], datatype = integer);
 			total_perms:=MultinomialCount(freqs);
-			if total_perms < maxIteration then
+			if total_perms < maxIteration and linsolver <> HardSystem then
 				Ll:=Iterator:-Permute(l,N);
 				M:=add(l)+N;
 				for degCoeffs in Ll do
@@ -275,9 +274,9 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 				end do
 			else
 				randpick:=rand(1..total_perms);
-				degCoeffs:=copy(l);
 				M:=add(l)+N;
 				to maxIteration do
+					degCoeffs:=UnrankMultiset(randpick(), Array(ul), freqs, N);
 					V:=[seq(c[i],i=0..M-1)];
 					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
@@ -296,8 +295,7 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 					end if;
 					if correct then
 						break
-					end if;
-					degCoeffs:=UnrankMultiset(randpick(), Array(ul), freqs, N)
+					end if
 				end do
 			end if;
 			l:=prevlistnumber(degPoly,l)
