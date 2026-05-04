@@ -4,8 +4,12 @@
 
 A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq** subpackage within **NLDE**. This algorithm makes no explicit use of Gröbner bases, or even explicit linear algebra, yet its output perfectly matches that of the Gröbner bases approach. It consistently returns a rational recursion for the $C^2$-finite sequence under consideration.
 
+![Analogy](/images/NLDE-package.png)
+
 **NLDE** (NonLinear algebra and Differential/Difference Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. Some features for the difference case are bieng implemented. The package provides:
 
+- ``DalgFunGuess``: to search for an algebraic differential equation satisfied by the generating function of a sequence from finitely many first terms of that sequence.
+- ``modDalgFunGuess``: ``DalgFunGuess`` over $\mathbb{Z}/m\mathbb{Z}$, for a positive integer $m$ (usually prime).
 - ``unaryDalg``: for computing ADEs for rational expressions of a single D-algebraic function using elimination with Groebner bases.
 - ``arithmeticDalg``: for computing ADEs for rational expressions of D-algebraic functions using elimination with Groebner bases.
 - ``composeDalg``: for computing ADEs for compositions of D-algebraic functions partly using elimination with Groebner bases.
@@ -20,6 +24,7 @@ A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq
   - ``HoloToSimpleRatrec``: to convert a given holonomic equation into a rational recursion satisfied by *most* solutions of that holonomic equation.
   - ``CCfiniteToSimpleRatrec``: to convert a given $C^2$-finite equation into a rational recursion satisfied by *most* solutions of that $C^2$-finite equation.
   - ``DalgGuess``: to search for an algebraic difference equation from finitely many first terms of an unknown sequence.
+  - ``modDalgGuess``: ``DalgGuess`` over $\mathbb{Z}/m\mathbb{Z}$, for a positive integer $m$ (usually prime).
   - ``arithmeticDalgSeq``, ``unaryDalgSeq``, ``AnsatzDalgSeq``, ``OrderDegreeRec``, ``CCfiniteToDalg``, ``PartialSumDalgSeq``, ``PartialProdDalgSeq``. Most of these commands are either self explanatory and work in a similar manner as their differential conterparts. Further details about **DalgSeq** may be find [here](https://t3gu1a.github.io/NLDEdoc/DalgSeq-Commands-and-Examples.html).
 
 
