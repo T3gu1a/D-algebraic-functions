@@ -4,6 +4,8 @@
 
 A prime example is the ``CCfiniteToSimpleRatrec`` command, part of the **DalgSeq** subpackage within **NLDE**. This algorithm makes no explicit use of Gröbner bases, or even explicit linear algebra, yet its output perfectly matches that of the Gröbner bases approach. It consistently returns a rational recursion for the $C^2$-finite sequence under consideration.
 
+See also [DalgGuessing](https://github.com/T3gu1a/D-algebraic-Guessing), a standalone package based on some **NLDE** commands.
+
 ![Analogy](/images/NLDE-package.png)
 
 **NLDE** (NonLinear algebra and Differential/Difference Equations) is a [Maple](https://www.maplesoft.com/) package to work with D-algebraic functions. These are functions that satisfy algebraic differential equations (ADEs), i.e., differential equations that are polynomial in the independent variable and derivatives of the dependent variables. Some features for the difference case are bieng implemented. The package provides:
