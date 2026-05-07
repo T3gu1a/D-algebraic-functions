@@ -1,22 +1,22 @@
 
 #The D-algebraic function guesser (finite field)
 modDalgFunGuess:= proc(L::list,
-	         {degADE::posint:=2,
-	         degPoly::nonnegint:=2,
-          termsOfDegPoly::posint:=1,
-	          devars::anyfunc(name):=NULL,
+		 {degADE::posint:=2,
+		 degPoly::nonnegint:=2,
+	  termsOfDegPoly::posint:=1,
+		  devars::anyfunc(name):=NULL,
 	    startfromord::nonnegint:=0,
 	      allPolyDeg::truefalse:=false,
-	        sparsity::Or(And(positive, fraction), identical(0)):=0,
-	        approach::identical(recurrence,polynomialsubs):=polynomialsubs,
+		sparsity::Or(And(positive, fraction), identical(0)):=0,
+		approach::identical(recurrence,polynomialsubs):=polynomialsubs,
 	    maxIteration::Or(posint,identical(infinity)):=infinity,
-	         modulus::posint:=7,
-          inputConstants::set(name):={}},
+		 modulus::posint:=7,
+	  inputConstants::set(name):={}},
 		      $)::Or(identical(FAIL),`=`);
 		option `Copyright (c) 2025 Bertrand Teguia T.`;
 		description "Guessing D-algebraic functions (finding their differential equations)";
 		local  Y::anyfunc(name),y::name,x::name,A::anyfunc(name),a::name,n::name,i::nonnegint,
-		       c::nothing,N::posint,M::posint,V::list,j::nonnegint,Sinit::list(eq),k::name,Lf::algebraic,
+		       c::nothing,N::posint,M::posint,V::list,j::nonnegint,Sinit::list,k::name,Lf::algebraic,
 		       nL::posint:=numelems(L),hasterm::truefalse:=true,ADE::algebraic,RE::algebraic,polEq::algebraic,	
 		       Nmax:=ceil(nL/(degPoly+1)),K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
 		       NDE::algebraic,correct::boolean:=false,Arbconst::list,REcheck::algebraic,NRE::algebraic,NpolEq::algebraic,
@@ -60,8 +60,7 @@ modDalgFunGuess:= proc(L::list,
 			A:=a(n);
 			Sinit:=[seq(a(i-1)=Terms[i],i=1..nL)]
 		else
-			Sinit:=[seq(a(i-1)=Terms[i],i=1..nL)];
-			Lf:=add(a(i)*x^i,i=0..nL-1)
+			Lf:=add(Terms[i+1]*x^i,i=0..nL-1)
 		end if;
 		#underdetermined system
 		if M > nL then
@@ -72,12 +71,12 @@ modDalgFunGuess:= proc(L::list,
 				return ifelse(allPolyDeg,modFixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,maxIteration,maxmodulus,inputConstants),FAIL)
 			else
 				if sparsity<>0 then
-					return ifelse(allPolyDeg,modFFixedOrdDegFunGuess(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,maxIteration,modulus,inputConstants,sparsity),FAIL)
+					return ifelse(allPolyDeg,modFFixedOrdDegFunGuess(Lf,degADE,degPoly,Y,N,y,x,maxIteration,modulus,inputConstants,sparsity),FAIL)
 				else
 					if nL-N<termsOfDegPoly*degPoly then
 						N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
 					end if;
-					return ifelse(allPolyDeg,modFFixedOrdDegFunGuess2(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,maxIteration,modulus,inputConstants),FAIL)
+					return ifelse(allPolyDeg,modFFixedOrdDegFunGuess2(Lf,degADE,degPoly,Y,N,y,x,maxIteration,modulus,inputConstants),FAIL)
 				end if
 			end if
 		end if;
@@ -97,13 +96,14 @@ modDalgFunGuess:= proc(L::list,
 			Eq:=subs(Aindets,Eq)
 		else
 			polEq:=expand(eval(ADE,Y=Lf) mod modulus) mod modulus;
-			polEq:=subs(Sinit,polEq);
 			Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M] #[seq(coeff(polEq,x,i),i=0..M-1)]
 		end if;
 		#solving the linear system
 		Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
 		S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
+		#S:= try LinearAlgebra:-LinearSolve(Meqs, beqs) mod modulus catch : NULL end try;
 		S:= ifelse(type(S,list(algebraic)),S,NULL);
+		#S:= ifelse(S<>NULL,convert(S,list),NULL);
 		#S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
 		if S<>NULL then
 			if approach=recurrence then
@@ -127,7 +127,7 @@ modDalgFunGuess:= proc(L::list,
 					S:=NULL
 				else
 					S:=[seq(V[i]=S[i],i=1..M)];
-					ADEcheck, S, correct:=modpolcheckSol(S,ADE,Sinit,a,nL,y,x,modulus)
+					ADEcheck, S, correct:=modpolcheckSol(S,ADE,Lf,nL,y,x,modulus)
 				end if
 			end if
 		end if;
@@ -148,7 +148,7 @@ modDalgFunGuess:= proc(L::list,
 				Eq:=subs(Aindets,Eq)
 			else 
 				NpolEq:=expand(eval(NDE,Y=Lf) mod modulus) mod modulus;
-				polEq:=polEq+subs(Sinit,NpolEq) mod modulus;
+				polEq:=polEq+NpolEq mod modulus;
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1] #[seq(coeff(polEq,x,i),i=0..M+degPoly+1)]
 			end if;
 			M:=M+degPoly+1;
@@ -156,6 +156,8 @@ modDalgFunGuess:= proc(L::list,
 			Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
 			S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 			S:= ifelse(type(S,list(algebraic)),S,NULL);
+			#S:= try LinearAlgebra:-LinearSolve(Meqs, beqs) mod modulus catch : NULL end try;
+			#S:= ifelse(S<>NULL,convert(S,list),NULL);
 			#S:=try msolve({op(Eq)},modulus) catch : NULL  end try;
 			if S<>NULL then
 				if approach=recurrence then 
@@ -178,7 +180,7 @@ modDalgFunGuess:= proc(L::list,
 						S:=NULL
 					else
 						S:=[seq(V[i]=S[i],i=1..M)];
-						ADEcheck, S, correct:=modpolcheckSol(S,ADE,Sinit,a,nL,y,x,modulus)
+						ADEcheck, S, correct:=modpolcheckSol(S,ADE,Lf,nL,y,x,modulus)
 					end if
 				end if
 			end if;
@@ -208,12 +210,12 @@ modDalgFunGuess:= proc(L::list,
 				return ifelse(allPolyDeg,modFixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,maxIteration,modulus,inputConstants),FAIL)
 			else
 				if sparsity<>0 then
-					return ifelse(allPolyDeg,modFFixedOrdDegFunGuess(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,maxIteration,modulus,inputConstants,sparsity),FAIL)
+					return ifelse(allPolyDeg,modFFixedOrdDegFunGuess(Lf,degADE,degPoly,Y,N,y,x,maxIteration,modulus,inputConstants,sparsity),FAIL)
 				else
 					if nL-N<termsOfDegPoly*degPoly then
 						N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
 					end if;
-					return ifelse(allPolyDeg,modFFixedOrdDegFunGuess2(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,maxIteration,modulus,inputConstants),FAIL)
+					return ifelse(allPolyDeg,modFFixedOrdDegFunGuess2(Lf,degADE,degPoly,Y,N,y,x,maxIteration,modulus,inputConstants),FAIL)
 				end if
 			end if
 		end if
@@ -242,23 +244,21 @@ modcheckSol:= proc(Sol::Or(list,set),
 
 modpolcheckSol:= proc(Sol::Or(list,set),
 		   ADEsol::algebraic,
-		    Sinit::list,
-			a::name,
+		       Lf::algebraic,
 		       nL::nonnegint,
 			y::name,
 			x::name,
 			m::posint,
 			$)
-	local S::list, ADE::algebraic, i::nonnegint,
-	      solf::algebraic:=add(a(i)*x^i,i=0..nL-1),checkADE::algebraic, deg::extended_numeric;
-	option `Copyright (c) 2022 Bertrand Teguia T.`;
-	S:=map(simplify,Sol);
-	ADE:=subs(S,ADEsol);
-	checkADE:=expand(eval(ADE,y(x)=solf)) mod m;
-	checkADE:=expand(subs(Sinit,checkADE)) mod m;
-	#checkADE:=expand(checkADE) mod m;
-	deg:= ldegree(checkADE,x);
-	return ADE, S, evalb(checkADE=0 or deg>=nL-PDEtools:-difforder(ADE,x))
-end proc:
+		local S::list, ADE::algebraic, i::nonnegint,
+		      checkADE::algebraic, deg::extended_numeric;
+		option `Copyright (c) 2022 Bertrand Teguia T.`;
+		S:=map(simplify,Sol);
+		ADE:=subs(S,ADEsol);
+		checkADE:=expand(eval(ADE,y(x)=Lf)) mod m;
+		#checkADE:=expand(checkADE) mod m;
+		deg:= ldegree(checkADE,x);
+		return ADE, S, evalb(checkADE=0 or deg>=nL-PDEtools:-difforder(ADE,x))
+	end proc:
 	
 $include <NLDE/DalgFunGuess/modDalgFunGuess/modFixedOrdDegFunGuess/src/modFixedOrdDegFunGuess.mm>

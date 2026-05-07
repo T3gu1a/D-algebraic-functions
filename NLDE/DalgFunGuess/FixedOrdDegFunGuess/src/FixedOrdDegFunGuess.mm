@@ -104,8 +104,6 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 	end proc:
 	
 FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
-			    Sinit::list,
-				a::name,
 			   degADE::posint,
 			  degPoly::nonnegint,
 				Y::anyfunc(name),
@@ -125,10 +123,12 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 		       correct::truefalse:=false,Arbconst::list,ADEcheck::algebraic,nleft,
 		       MnL::posint,ZerosV,zV,zzV::list,unkV::list,idx,Meqs,beqs,pool;
 		M:=(degPoly+1)*N;
+		#the user fixes the maximum of zero-coefficients with minimum possible value 1-nL/M
 		pcentge:=max(sparsity,1-nL/M);
 		MnL:=ceil(pcentge*M);
 		total_combs:=binomial(M,MnL);
 		V:=[seq(c[i],i=0..M-1)];
+		#userinfo(2,DalgFunGuess,printf("The total combinations are %d \n", total_combs));
 		if total_combs < maxIteration and linsolver <> HardSystem then
 			ZerosV:=Iterator:-Combination(M, MnL);
 			for zV in ZerosV do
@@ -137,7 +137,6 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				unkV:=subs(zzV,V);
 				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
 				polEq:=expand(eval(ADE,Y=Lf));
-				polEq:=subs(Sinit,polEq);
 				unkV:=remove(t->t=0,unkV);
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..numelems(unkV)]; 
 				#Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, unkV);
@@ -148,7 +147,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 					if remove(v->rhs(v)=0,S)={} then
 						S:=NULL
 					else
-						ADEcheck, S, correct:=polcheckSol(S,ADE,Sinit,a,nL,y,x)
+						ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
 					end if
 				end if;
 				if correct then
@@ -156,7 +155,6 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				end if
 			end do
 		else
-			randpick:=rand(1..M);
 			to maxIteration do
 				pool:=table([seq(i+1=i,i=0..M-1)]);
 				nleft:=M;
@@ -185,7 +183,6 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				unkV:=subs(zzV,V);
 				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
 				polEq:=expand(eval(ADE,Y=Lf));
-				polEq:=subs(Sinit,polEq);
 				unkV:=remove(t->t=0,unkV);
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..numelems(unkV)]; 
 				Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, unkV);
@@ -195,7 +192,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 					if remove(v->rhs(v)=0,S)=[] then
 						S:=NULL
 					else
-						ADEcheck, S, correct:=polcheckSol(S,ADE,Sinit,a,nL,y,x)
+						ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
 					end if
 				end if;
 				if correct then
@@ -222,8 +219,6 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 	end proc:
 	
 FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
-			    Sinit::list,
-				a::name,
 			   degADE::posint,
 			  degPoly::nonnegint,
 				Y::anyfunc(name),
@@ -255,7 +250,6 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
 					polEq:=expand(eval(ADE,Y=Lf));
-					polEq:=subs(Sinit,polEq);
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; 
 					#Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, V);
 					#S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
@@ -265,7 +259,7 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 						if remove(v->rhs(v)=0,S)={} then
 							S:=NULL
 						else
-							ADEcheck, S, correct:=polcheckSol(S,ADE,Sinit,a,nL,y,x)
+							ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
 						end if
 					end if;
 					if correct then
@@ -281,7 +275,6 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
 					polEq:=expand(eval(ADE,Y=Lf));
-					polEq:=subs(Sinit,polEq);
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; 
 					Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, V);
 					S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
@@ -290,7 +283,7 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 						if remove(v->rhs(v)=0,S)=[] then
 							S:=NULL
 						else
-							ADEcheck, S, correct:=polcheckSol(S,ADE,Sinit,a,nL,y,x)
+							ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
 						end if
 					end if;
 					if correct then

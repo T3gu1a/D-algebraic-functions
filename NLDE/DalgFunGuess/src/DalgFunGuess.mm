@@ -56,8 +56,7 @@ DalgFunGuess:= proc(L::list,
 			A:=a(n);
 			Sinit:=[seq(a(i-1)=L[i],i=1..nL)];
 		else
-			Sinit:=[seq(a(i-1)=L[i],i=1..nL)];
-			Lf:=add(a(i)*x^i,i=0..nL-1)
+			Lf:=add(L[i+1]*x^i,i=0..nL-1)
 		end if;
 		if M > nL then
 			if approach=recurrence then
@@ -67,12 +66,12 @@ DalgFunGuess:= proc(L::list,
 				return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 			else
 				if sparsity<>0 then
-					return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
+					return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
 				else
 					if nL-N<termsOfDegPoly*degPoly then
 						N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
 					end if;
-					return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
+					return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
 				end if
 			end if
 		end if;
@@ -86,9 +85,8 @@ DalgFunGuess:= proc(L::list,
 			#NegInd: list for substituting terms with negative indices to zero
 			NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 			Eq:=subs(NegInd,Eq);
-		else
+		else	
 			polEq:=expand(eval(ADE,Y=Lf));
-			polEq:=subs(Sinit,polEq);
 			Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)] -- not efficient
 		end if;
 		#S:=try op(solve(Eq,V)) catch : NULL  end try;
@@ -120,7 +118,7 @@ DalgFunGuess:= proc(L::list,
 					S:=NULL
 				else
 					#checking the solution
-					ADEcheck, S, correct:=polcheckSol(S,ADE,Sinit,a,nL,y,x)
+					ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
 				end if
 				
 			end if
@@ -139,7 +137,7 @@ DalgFunGuess:= proc(L::list,
 				Eq:=subs(NegInd,Eq);
 			else
 				NpolEq:=expand(eval(NDE,Y=Lf));
-				polEq:=polEq+subs(Sinit,NpolEq);
+				polEq:=polEq+NpolEq;
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1]
 			end if;
 			M:=M+degPoly+1;
@@ -171,7 +169,7 @@ DalgFunGuess:= proc(L::list,
 						S:=NULL
 					else
 						#checking the solution
-						ADEcheck, S, correct:=polcheckSol(S,ADE,Sinit,a,nL,y,x)
+						ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
 					end if
 				
 				end if
@@ -202,12 +200,12 @@ DalgFunGuess:= proc(L::list,
 				return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 			else 
 				if sparsity<>0 then
-					return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
+					return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
 				else
 					if nL-N<termsOfDegPoly*degPoly then
 						N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
 					end if;
-					return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,Sinit,a,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
+					return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
 				end if
 			end if
 		end if
