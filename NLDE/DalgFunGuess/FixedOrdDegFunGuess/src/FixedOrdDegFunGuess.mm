@@ -28,7 +28,7 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 		freqs:=Array([seq(eval(val, tl), val = ul)], datatype = integer);
 		total_perms:=MultinomialCount(freqs);	
 		while l<> FAIL and not(correct) do
-			if total_perms < maxIteration and linsolver <> HardSystem then
+			if total_perms < maxIteration then
 				Ll:=Iterator:-Permute(l,N);
 				M:=add(l)+N;
 				for degCoeffs in Ll do:
@@ -39,10 +39,13 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 					Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
 					NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 					Eq:=subs(NegInd,Eq);
-					#Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, V);
-					#S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
-					#S:=ifelse(S<>NULL,[seq(V[i] = S[i], i = 1 .. numelems(V))],NULL);
-					S:=SolveTools:-Linear(Eq,V,method=linsolver);
+					if linsolver=HardSystem then
+						Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, V);
+						S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
+						S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. M)},NULL)
+					else
+						S:=SolveTools:-Linear(Eq,V,method=linsolver)
+					end if;
 					if S<>NULL then
 						if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
 							hasterm:=has(Eq,a);
@@ -129,7 +132,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 		total_combs:=binomial(M,MnL);
 		V:=[seq(c[i],i=0..M-1)];
 		#userinfo(2,DalgFunGuess,printf("The total combinations are %d \n", total_combs));
-		if total_combs < maxIteration and linsolver <> HardSystem then
+		if total_combs < maxIteration then
 			ZerosV:=Iterator:-Combination(M, MnL);
 			for zV in ZerosV do
 				zzV := [seq(c[idx], idx in zV)];
@@ -139,10 +142,13 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				polEq:=expand(eval(ADE,Y=Lf));
 				unkV:=remove(t->t=0,unkV);
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..numelems(unkV)]; 
-				#Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, unkV);
-				#S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
-				#S:=ifelse(S<>NULL,[seq(unkV[i] = S[i], i = 1 .. numelems(unkV))],NULL);
-				S:=SolveTools:-Linear(Eq,unkV,method=linsolver);
+				if linsolver=HardSystem then
+					Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, unkV);
+					S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
+					S:=ifelse(S<>NULL,{seq(unkV[i] = S[i], i = 1 .. numelems(unkV))},NULL)
+				else
+					S:=SolveTools:-Linear(Eq,unkV,method=linsolver)
+				end if;
 				if S<>NULL then
 					if remove(v->rhs(v)=0,S)={} then
 						S:=NULL
@@ -242,7 +248,7 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 			tl:=Statistics:-Tally(l);
 			freqs:=Array([seq(eval(val, tl), val = ul)], datatype = integer);
 			total_perms:=MultinomialCount(freqs);
-			if total_perms < maxIteration and linsolver <> HardSystem then
+			if total_perms < maxIteration then
 				Ll:=Iterator:-Permute(l,N);
 				M:=add(l)+N;
 				for degCoeffs in Ll do
@@ -251,10 +257,13 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 									  ,i=0..degCoeffs[j]),j=1..N);
 					polEq:=expand(eval(ADE,Y=Lf));
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; 
-					#Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, V);
-					#S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
-					#S:=ifelse(S<>NULL,[seq(V[i] = S[i], i = 1 .. numelems(V))],NULL);
-					S:=SolveTools:-Linear(Eq,V,method=linsolver);
+					if linsolver=HardSystem then
+						Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, V);
+						S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
+						S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. M)},NULL)
+					else
+						S:=SolveTools:-Linear(Eq,V,method=linsolver)
+					end if;
 					if S<>NULL then
 						if remove(v->rhs(v)=0,S)={} then
 							S:=NULL
