@@ -5,6 +5,13 @@ ComputDegkDE := proc(f::algebraic,z::name,k::posint,degkNmax::posint,Subdiff::li
 		description "Computational part of DegreekDE";
 		while PDEtools:-difforder(deltakdiff(a(z),z,k,N))<=degkNmax and Coef=[] do
 			A:=[seq(a[i],i=0..N-1)];
+			
+			#when too hard, the commented Maple simplifications below can help... However, not good for math...
+			#A:=[seq(a[i],i=0..N-2)];
+			#Eq:=expand(numer(radnormal(simplify(deltakdiff(f,z,k,N)+add(A[i]*deltakdiff(f,z,k,i),i=1..N-1),
+			#	'trig','hypergeom'),'rationalized')));
+			#Eq:=combine(Eq,trig);
+			
 			Eq:=deltakdiff(f,z,k,N)+add(A[i+1]*deltakdiff(f,z,k,i),i=0..N-1);
 			n:=PDEtools:-difforder(Eq,z);
 			to n do

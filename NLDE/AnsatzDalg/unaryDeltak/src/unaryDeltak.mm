@@ -2,10 +2,10 @@
 unaryDeltak:= proc(DE::`=`,
 		    y::anyfunc(name),
 		    z::name=algebraic,
-		    {degreeDE::posint:=2,
-		    startingorder::posint:=1,
-		    maxdeorder::posint:=2},
-		    $)::`=`;
+              {degADE::posint:=2,
+         startfromord::posint:=1,
+           maxdeorder::posint:=2},
+		   $)::Or(`=`,identical(FAIL));
 		local t::name:=op(y),Sys::list,ord::posint,
 		      x::nothing,var::name,subvars::list,SubL::list,j::posint;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
@@ -16,7 +16,7 @@ unaryDeltak:= proc(DE::`=`,
 		Sys:=subs(subvars,Sys);
 		SubL:=[seq(diff(Sys[2][j],t)=Sys[1][j],j=1..numelems(Sys[1]))];
 		DegreekDE(subs(var=Sys[2][1],normal(rhs(z))),lhs(z)(t),SubL,
-			':-maxdeorder'=max(maxdeorder,ord,startingorder),
-			':-degreeDE'=degreeDE,startfromord=max(ord,startingorder))
+			':-maxdeorder'=max(maxdeorder,ord,startfromord),
+			':-degreeDE'=degADE,':-startfromord'=max(ord,startfromord))
 	end proc:
 
