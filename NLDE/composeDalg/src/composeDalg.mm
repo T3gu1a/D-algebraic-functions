@@ -55,9 +55,9 @@ numberthpowerDalg:=proc(ADE::`=`,
 		if q=NULL then 
 			`tools/genglobal`('n',{},'reset');
 			N:=`tools/genglobal`('n');
-			NADE:=x*diff(U(x),x)+N*U(x)=0
+			NADE:=x*diff(U(x),x)-N*U(x)=0
 		else 
-			NADE:=x*diff(U(x),x)+q*U(x)=0
+			NADE:=x*diff(U(x),x)-q*U(x)=0
 		end if;
 		return subs(V=op(0,y),composeDalg([NADE,ADE],[U(x),y],V(x)))
 	end proc:
