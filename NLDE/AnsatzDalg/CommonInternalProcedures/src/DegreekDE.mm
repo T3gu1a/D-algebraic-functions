@@ -4,7 +4,7 @@ DegreekDE := proc(expr::algebraic,
 		sublistdiff::list(`=`),
 		{maxdeorder::posint:=4,
 		degreeDE::posint:=2,
-		startfromord::posint:=1},
+		startfromord::nonnegint:=1},
 		$)::Or(`=`,identical(FAIL));
 		local z, f, N, Coef, Dde, i;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;

@@ -44,5 +44,23 @@ composeDalg:= proc(L::[`=`,`=`],
 		return SysToMinDiffPoly([op(Sys[1]),op(Sysh[1])],h[0],[op(Sys[2]),op(Sysh[2])],z,':-ordering'=ordering)
 	end proc:
 
+numberthpowerDalg:=proc(ADE::`=`,
+	             y::anyfunc(name),
+                     {q::Or(constant,name):=NULL},
+		     $)::`=`;	
+		local NADE::algebraic,N,x::name:=op(y),U::name,V::name,ADEsol::algebraic;
+		description "Powers of D-algebraic functions"; 
+		option `Copyright (c) 2026 Bertrand Teguia T.`;
+		
+		if q=NULL then 
+			`tools/genglobal`('n',{},'reset');
+			N:=`tools/genglobal`('n');
+			NADE:=x*diff(U(x),x)+N*U(x)=0
+		else 
+			NADE:=x*diff(U(x),x)+q*U(x)=0
+		end if;
+		return subs(V=op(0,y),composeDalg([NADE,ADE],[U(x),y],V(x)))
+	end proc:
+
 $include <NLDE/composeDalg/SubProcedures/src/subsgfurther.mm>
 $include <NLDE/composeDalg/SubProcedures/src/ftogh.mm>
