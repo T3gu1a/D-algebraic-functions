@@ -56,7 +56,7 @@ DalgFunGuess:= proc(L::list,
 			A:=a(n);
 			Sinit:=[seq(a(i-1)=L[i],i=1..nL)];
 		else
-			Lf:=add(L[i+1]*x^i,i=0..nL-1)
+			Lf:=PolynomialTools:-FromCoefficientList(L,x)
 		end if;
 		if M > nL then
 			if approach=recurrence then

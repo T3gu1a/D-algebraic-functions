@@ -60,7 +60,7 @@ modDalgFunGuess:= proc(L::list,
 			A:=a(n);
 			Sinit:=[seq(a(i-1)=Terms[i],i=1..nL)]
 		else
-			Lf:=add(Terms[i+1]*x^i,i=0..nL-1)
+			Lf:=PolynomialTools:-FromCoefficientList(Terms,x)
 		end if;
 		#underdetermined system
 		if M > nL then
