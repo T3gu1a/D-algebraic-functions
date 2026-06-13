@@ -30,11 +30,11 @@ modFFixedOrdDegFunGuess:= proc(Lf::algebraic,
 				zzV := [seq(c[i], i in zV)];
 				zzV:=map(t->t=0,zzV);
 				unkV:=subs(zzV,V);
-				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
-				polEq:=expand(eval(ADE,Y=Lf)) mod modulus;
+				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
+				polEq:=eval(ADE,Y=Lf) mod modulus;
 				unkV:=remove(t->t=0,unkV);
-				Eq:=PolynomialTools:-CoefficientList(polEq,x);   #[1..numelems(unkV)]; [seq(coeff(polEq,x,i),i=0..M-1)];
-				Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,unkV);
+				Eq:=PolynomialTools:-CoefficientList(polEq,x);         #[1..numelems(unkV)];[seq(coeff(polEq,x,i),i=0..M-1)];
+				Meqs, beqs := LetGenerateIntMatrix(Eq,unkV,numelems(unkV),modulus);
 				S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 				S:= ifelse(type(S,list(algebraic)),S,NULL);
 				if S<>NULL then
@@ -76,11 +76,11 @@ modFFixedOrdDegFunGuess:= proc(Lf::algebraic,
 				zzV:=[seq(c[idx], idx in zV)];
 				zzV:=map(t->t=0,zzV);
 				unkV:=subs(zzV,V);
-				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
-				polEq:=expand(eval(ADE,Y=Lf)) mod modulus;
+				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
+				polEq:=eval(ADE,Y=Lf) mod modulus;
 				unkV:=remove(t->t=0,unkV);
-				Eq:=PolynomialTools:-CoefficientList(polEq,x);  #[1..numelems(unkV)];[seq(coeff(polEq,x,i),i=0..M-1)];
-				Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,unkV);
+				Eq:=PolynomialTools:-CoefficientList(polEq,x);  #[1..numelems(unkV)]; [seq(coeff(polEq,x,i),i=0..M-1)];
+				Meqs, beqs := LetGenerateIntMatrix(Eq,unkV,numelems(unkV),modulus);
 				S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 				S:= ifelse(type(S,list(algebraic)),S,NULL);
 				if S<>NULL then
@@ -143,11 +143,11 @@ modFFixedOrdDegFunGuess2:= proc(Lf::algebraic,
 				M:=add(l)+N;
 				for degCoeffs in Ll do
 					V:=[seq(c[i],i=0..M-1)];
-					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
+					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
-					polEq:=expand(eval(ADE,Y=Lf) mod modulus) mod modulus;
+					polEq:=eval(ADE,Y=Lf) mod modulus;
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; 
-					Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
+					Meqs, beqs := LetGenerateIntMatrix(Eq,V,M,modulus);
 					S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 					S:= ifelse(type(S,list(algebraic)),S,NULL);
 					if S<>NULL then
@@ -168,11 +168,11 @@ modFFixedOrdDegFunGuess2:= proc(Lf::algebraic,
 				to maxIteration do
 					degCoeffs:=UnrankMultiset(randpick(), Array(ul), freqs, N);
 					V:=[seq(c[i],i=0..M-1)];
-					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
+					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
-					polEq:=expand(eval(ADE,Y=Lf) mod modulus) mod modulus;
+					polEq:=eval(ADE,Y=Lf) mod modulus;
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)];
-					Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
+					Meqs, beqs := LetGenerateIntMatrix(Eq,V,M,modulus);
 					S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 					S:= ifelse(type(S,list(algebraic)),S,NULL);
 					if S<>NULL then
@@ -220,7 +220,7 @@ modFixedOrdDegFunGuess:= proc(Sinit::list,
 				  K::list,
 		       maxIteration::Or(posint,identical(infinity)),
 			    modulus::posint,
-	             inputConstants::set(name),
+		     inputConstants::set(name),
 				 $)::Or(identical(FAIL),`=`);
 		option `Copyright (c) 2025 Bertrand Teguia T.`;
 		description "Looking for an equation among all possible equations of the given maximum polynomial degree";
@@ -230,7 +230,7 @@ modFixedOrdDegFunGuess:= proc(Sinit::list,
 		       correct::truefalse:=false,Arbconst::list,REcheck::algebraic,Aindets,Meqs,beqs,randpick,
 		       l::list(nonnegint),Ll::list(list),m::nonnegint,degCoeffs::list(nonnegint);
 		
-		l:=GenMaxlistnumber(N,degPoly,max(nL-N,0));
+		l:=GenMaxlistnumber(N,degPoly,nL-N);
 		ul:=sort([op({op(l)})]);
 		tl:=Statistics:-Tally(l);
 		freqs:=Array([seq(eval(val, tl), val = ul)], datatype = integer);
@@ -241,7 +241,7 @@ modFixedOrdDegFunGuess:= proc(Sinit::list,
 				M:=add(l)+N;
 				for degCoeffs in Ll do:
 					V:=[seq(c[i],i=0..M-1)];
-					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
+					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
 					RE:=ADEtoRE(ADE,Y,A,K);
 					Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add]) mod modulus) mod modulus,i=0..M-1)];
@@ -250,7 +250,7 @@ modFixedOrdDegFunGuess:= proc(Sinit::list,
 					Aindets:=[op(indets(Eq,a('integer')))];
 					Aindets:=[seq(Aindets[j]=cat(a,j),j=1..numelems(Aindets))];
 					Eq:=subs(Aindets,Eq);
-					Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
+					Meqs, beqs := LetGenerateIntMatrix(Eq, V, M, modulus);
 					S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 					S:= ifelse(type(S,list(algebraic)),S,NULL);
 					if S<>NULL then
@@ -268,10 +268,11 @@ modFixedOrdDegFunGuess:= proc(Sinit::list,
 				end do
 			else
 				randpick:=rand(1..total_perms);
-				degCoeffs:=copy(l);
+				M:=add(l)+N;
 				to maxIteration do
+					degCoeffs:=UnrankMultiset(randpick(), Array(ul), freqs, N);
 					V:=[seq(c[i],i=0..M-1)];
-					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
+					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
 					RE:=ADEtoRE(ADE,Y,A,K);
 					Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add]) mod modulus) mod modulus,i=0..M-1)];
@@ -280,7 +281,7 @@ modFixedOrdDegFunGuess:= proc(Sinit::list,
 					Aindets:=[op(indets(Eq,a('integer')))];
 					Aindets:=[seq(Aindets[j]=cat(a,j),j=1..numelems(Aindets))];
 					Eq:=subs(Aindets,Eq);
-					Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq,V);
+					Meqs, beqs := LetGenerateIntMatrix(Eq,V,M,modulus);
 					S:= try convert(Linsolve(Meqs,beqs) mod modulus, list) catch : NULL end try;
 					S:= ifelse(type(S,list(algebraic)),S,NULL);
 					if S<>NULL then
@@ -294,8 +295,7 @@ modFixedOrdDegFunGuess:= proc(Sinit::list,
 					end if;
 					if correct or hasterm then
 						break
-					end if;
-					degCoeffs:=UnrankMultiset(randpick(), Array(ul), freqs, N)
+					end if
 				end do
 			end if;
 			l:=prevlistnumber(degPoly,l);

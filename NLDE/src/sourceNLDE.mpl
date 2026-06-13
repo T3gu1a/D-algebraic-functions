@@ -6,7 +6,7 @@ export unaryDalg, diffDalg, invDalg, SysToMinDiffPoly, composeDalg, arithmeticDa
        AnsatzDalg, DDfiniteToDalg, OrderDegreeADE, DalgSeq, DalgFunGuess, modDalgFunGuess, ADEtoRec, numberthpowerDalg;
 
 local buildsystem, mergesystem, ftogh, subsgfurther, ftogx, NLDE_nlho, ordertoktuple, CheckSol, ADEtoRE, ADEtermToREterm, ADECauchyprod, poch,
-      FixedOrdDegFunGuess, modFixedOrdDegFunGuess, modcheckSol, prevlistnumber, FFixedOrdDegFunGuess, polcheckSol,
+      FixedOrdDegFunGuess, modFixedOrdDegFunGuess, modcheckSol, prevlistnumber, FFixedOrdDegFunGuess, polcheckSol,LetGenerateMatrix,LetGenerateIntMatrix,
       modpolcheckSol, modFFixedOrdDegFunGuess, modFFixedOrdDegFunGuess2, FFixedOrdDegFunGuess2, MultinomialCount,UnrankMultiset,GenMaxlistnumber;
 
 $include <NLDE/OrderDegreeADE/src/OrderDegreeADE.mm>

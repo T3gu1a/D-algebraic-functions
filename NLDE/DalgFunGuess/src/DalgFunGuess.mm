@@ -86,14 +86,14 @@ DalgFunGuess:= proc(L::list,
 			NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 			Eq:=subs(NegInd,Eq);
 		else	
-			polEq:=expand(eval(ADE,Y=Lf));
+			polEq:=eval(ADE,Y=Lf);
 			Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)] -- not efficient
 		end if;
 		#S:=try op(solve(Eq,V)) catch : NULL  end try;
 		if linsolver=HardSystem then
-			Meqs, beqs := ifelse(approach=recurrence,LinearAlgebra:-GenerateMatrix(remove(has,Eq,a), V),LinearAlgebra:-GenerateMatrix(Eq, V));
+			Meqs, beqs := ifelse(approach=recurrence,LetGenerateMatrix(remove(has,Eq,a), V, M),LetGenerateMatrix(Eq, V, M));
 			S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
-			S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. numelems(V))},NULL);
+			S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. M)},NULL);
 		else
 			S:=ifelse(approach=recurrence,SolveTools:-Linear(remove(has,Eq,a),V,method=linsolver),
 			SolveTools:-Linear(Eq,V,method=linsolver))
@@ -136,15 +136,15 @@ DalgFunGuess:= proc(L::list,
 				NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 				Eq:=subs(NegInd,Eq);
 			else
-				NpolEq:=expand(eval(NDE,Y=Lf));
+				NpolEq:=eval(NDE,Y=Lf);
 				polEq:=polEq+NpolEq;
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1]
 			end if;
 			M:=M+degPoly+1;
 			if linsolver=HardSystem then
-				Meqs, beqs := LinearAlgebra:-GenerateMatrix(Eq, V);
+				Meqs, beqs := LetGenerateMatrix(Eq, V, M);
 				S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
-				S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. numelems(V))},NULL);
+				S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. M)},NULL);
 			else
 				S:=SolveTools:-Linear(Eq,V,method=linsolver)
 			end if;
