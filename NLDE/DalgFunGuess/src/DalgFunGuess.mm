@@ -14,93 +14,158 @@ DalgFunGuess:= proc(L::list,
        inputConstants::set(name):={},
 	    linsolver::identical(AlgebraicFunction,Rational,AlgebraicNumber,RadicalFunction,RationalDense,HardSystem):=HardSystem},
 		   $)::Or(identical(FAIL),`=`,list(`=`));
-		option `Copyright (c) 2025 Bertrand Teguia T.`;
-		description "Guessing D-algebraic functions (finding their differential equations)";
-		local  Y::anyfunc(name),y::name,x::name,A::anyfunc(name),a::name,n::name,i::nonnegint,
-		       c::nothing,N::posint,M::posint,V::list,j::nonnegint,Sinit::list(`=`),k::name,Lf::algebraic,
-		       nL::posint:=numelems(L),hasterm::truefalse:=false,ADE::algebraic,RE::algebraic,polEq::algebraic,	
-		       Nmax:=ceil(nL/(degPoly+1)),K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
-		       NDE::algebraic,correct::boolean:=false,Arbconst::list,REcheck::algebraic,NRE::algebraic,NpolEq::algebraic,
-		       ADEcheck::algebraic,Param::set:=inputConstants,Meqs,beqs;
-		#minimal deltak order for starting order startfromord
-		N:=binomial(degADE+startfromord,degADE);
-		#minimal number of unknown
-		M:=(degPoly+1)*N;
-		V:=[seq(c[i],i=0..M-1)];
-		#ADE variables
-		if devars=NULL then 
-			`tools/genglobal`('y',{},'reset');
-			`tools/genglobal`('x',{},'reset');
-			y:=`tools/genglobal`('y');
-			x:=`tools/genglobal`('x');
-			Y:=y(x)
-		else 
-			y:=op(0,devars);
-			x:=op(1,devars);
-			#correctness of the input variables
-			if y=x then
-				error "invalid input: the variables of the differential equation must be distinct"
-			end if;
-			Y:=y(x)
+	option `Copyright (c) 2025 Bertrand Teguia T.`;
+	description "Guessing D-algebraic functions (finding their differential equations)";
+	local  Y::anyfunc(name),y::name,x::name,A::anyfunc(name),a::name,n::name,i::nonnegint,
+	       c::nothing,N::posint,M::posint,V::list,j::nonnegint,Sinit::list(`=`),k::name,Lf::algebraic,
+	       nL::posint:=numelems(L),hasterm::truefalse:=false,ADE::algebraic,RE::algebraic,polEq::algebraic,	
+	       Nmax:=ceil(nL/(degPoly+1)),K::list,Eq::list(algebraic),NegInd::list,S::Or(identical(NULL),list(algebraic)),
+	       NDE::algebraic,correct::boolean:=false,Arbconst::list,REcheck::algebraic,NRE::algebraic,NpolEq::algebraic,
+	       ADEcheck::algebraic,Param::set:=inputConstants,Meqs,beqs,diffLf,dord;
+	#minimal deltak order for starting order startfromord
+	N:=binomial(degADE+startfromord,degADE);
+	#minimal number of unknown
+	M:=(degPoly+1)*N;
+	V:=[seq(c[i],i=0..M-1)];
+	#ADE variables
+	if devars=NULL then 
+		`tools/genglobal`('y',{},'reset');
+		`tools/genglobal`('x',{},'reset');
+		y:=`tools/genglobal`('y');
+		x:=`tools/genglobal`('x');
+		Y:=y(x)
+	else 
+		y:=op(0,devars);
+		x:=op(1,devars);
+		#correctness of the input variables
+		if y=x then
+			error "invalid input: the variables of the differential equation must be distinct"
 		end if;
-		#Recurrence variables
+		Y:=y(x)
+	end if;
+	#Recurrence variables
+	if approach=recurrence then
+		a:=`tools/genglobal`('a');
+		n:=`tools/genglobal`('n');
+		interface(warnlevel=0);
+		for j from 0 to degADE-1 do
+			cat(k,j):=`tools/genglobal`('k')
+		end do;
+		K:=[seq(cat(k,j),j=0..degADE-1)];
+		interface(warnlevel=4);
+		A:=a(n);
+		Sinit:=[seq(a(i-1)=L[i],i=1..nL)];
+	else
+		Lf:=PolynomialTools:-FromCoefficientList(L,x) #add(L[i+1]*x^i,i=0..nL-1)
+	end if;
+	if M > nL then
 		if approach=recurrence then
-			a:=`tools/genglobal`('a');
-			n:=`tools/genglobal`('n');
-			interface(warnlevel=0);
-			for j from 0 to degADE-1 do
-				cat(k,j):=`tools/genglobal`('k')
-			end do;
-			K:=[seq(cat(k,j),j=0..degADE-1)];
-			interface(warnlevel=4);
-			A:=a(n);
-			Sinit:=[seq(a(i-1)=L[i],i=1..nL)];
+			if nL-N<termsOfDegPoly*degPoly then
+				N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
+			end if;
+			return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 		else
-			Lf:=PolynomialTools:-FromCoefficientList(L,x)
-		end if;
-		if M > nL then
-			if approach=recurrence then
+			dord:=PDEtools:-difforder(AnsatzDalg:-deltakdiff(Y,x,degADE,N),x);
+			diffLf[0]:=Lf;
+			for j to dord do 
+				diffLf[j]:=diff(diffLf[j-1],x) 
+			end do;
+			if sparsity<>0 then
+				return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,diffLf,dord,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
+			else
 				if nL-N<termsOfDegPoly*degPoly then
 					N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
 				end if;
-				return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
-			else
-				if sparsity<>0 then
-					return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
-				else
+				return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,diffLf,dord,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
+			end if
+		end if
+	end if;
+	#initialization - ADE and RE of the first iteration
+	ADE:=add(add(V[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
+	dord:=PDEtools:-difforder(AnsatzDalg:-deltakdiff(Y,x,degADE,N),x);
+	if approach=recurrence then
+		RE:=ADEtoRE(ADE,Y,A,K);
+		#write the RE for non-negative indices
+		#build the linear system and solve it
+		Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
+		#NegInd: list for substituting terms with negative indices to zero
+		NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
+		Eq:=subs(NegInd,Eq);
+	else	
+		diffLf[0]:=Lf;
+		for j to dord do 
+			diffLf[j]:=diff(diffLf[j-1],x) 
+		end do;
+		polEq:= normal(eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]));
+		Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)] -- not efficient
+	end if;
+	#S:=try op(solve(Eq,V)) catch : NULL  end try;
+	if linsolver=HardSystem then
+		Meqs, beqs := ifelse(approach=recurrence,LetGenerateMatrix(remove(has,Eq,a), V, M),LetGenerateMatrix(Eq, V, M));
+		S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
+		S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. M)},NULL);
+	else
+		S:=ifelse(approach=recurrence,SolveTools:-Linear(remove(has,Eq,a),V,method=linsolver),
+		SolveTools:-Linear(Eq,V,method=linsolver))
+	end if;
+	if S<>NULL then
+		if approach=recurrence then
+			if remove(v->rhs(v)=0,S)={} then
+				hasterm:=has(Eq,a);
+				S:=NULL;
+				if hasterm then
 					if nL-N<termsOfDegPoly*degPoly then
 						N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
 					end if;
-					return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
+					return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 				end if
+			else
+				#checking the solution
+				REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
 			end if
-		end if;
-		#initialization - ADE and RE of the first iteration
-		ADE:=add(add(V[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
+		else
+			if remove(v->rhs(v)=0,S)={} then
+				S:=NULL
+			else
+				#checking the solution
+				ADEcheck, S, correct:=polcheckSol(S,ADE,diffLf,dord,nL,y,x)
+			end if
+			
+		end if
+	end if;
+	N:=N+1;
+	while not(correct) and N<=Nmax do
+		V:=[op(V),seq(c[i],i=M..M+degPoly)];
+		NDE:=add(V[M+i]*x^(i-1)*AnsatzDalg:-deltakdiff(Y,x,degADE,N),i=1..degPoly+1);
+		dord:=PDEtools:-difforder(AnsatzDalg:-deltakdiff(Y,x,degADE,N),x);
+		ADE:=NDE+ADE;
 		if approach=recurrence then
-			RE:=ADEtoRE(ADE,Y,A,K);
-			#write the RE for non-negative indices
-			#build the linear system and solve it
-			Eq:=[seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=0..M-1)];
-			#NegInd: list for substituting terms with negative indices to zero
+			NRE:=ADEtoRE(NDE,Y,A,K);
+			RE:=NRE+RE;
+			Eq:=[seq(Eq[i+1]+subs(Sinit,eval(NRE,[n=i,Sum=add])),i=0..M-1)];
+			Eq:=[op(Eq),seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=M..M+degPoly+1)];
 			NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
 			Eq:=subs(NegInd,Eq);
-		else	
-			polEq:=eval(ADE,Y=Lf);
-			Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; #[seq(coeff(polEq,x,i),i=0..M-1)] -- not efficient
+		else
+			for j from numelems(diffLf) to dord do 
+				diffLf[j]:=diff(diffLf[j-1],x) 
+			end do;
+			NpolEq:= eval(NDE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
+			polEq:=polEq+NpolEq;
+			Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1]
 		end if;
-		#S:=try op(solve(Eq,V)) catch : NULL  end try;
+		M:=M+degPoly+1;
 		if linsolver=HardSystem then
-			Meqs, beqs := ifelse(approach=recurrence,LetGenerateMatrix(remove(has,Eq,a), V, M),LetGenerateMatrix(Eq, V, M));
+			Meqs, beqs := LetGenerateMatrix(Eq, V, M);
 			S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
 			S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. M)},NULL);
 		else
-			S:=ifelse(approach=recurrence,SolveTools:-Linear(remove(has,Eq,a),V,method=linsolver),
-			SolveTools:-Linear(Eq,V,method=linsolver))
+			S:=SolveTools:-Linear(Eq,V,method=linsolver)
 		end if;
 		if S<>NULL then
 			if approach=recurrence then
-				if remove(v->rhs(v)=0,S)={} then
+				if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
+					#too few initial values
 					hasterm:=has(Eq,a);
 					S:=NULL;
 					if hasterm then
@@ -110,7 +175,7 @@ DalgFunGuess:= proc(L::list,
 						return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
 					end if
 				else
-					#checking the solution
+					#verification step
 					REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
 				end if
 			else
@@ -118,98 +183,47 @@ DalgFunGuess:= proc(L::list,
 					S:=NULL
 				else
 					#checking the solution
-					ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
+					ADEcheck, S, correct:=polcheckSol(S,ADE,diffLf,dord,nL,y,x)
 				end if
-				
+			
 			end if
 		end if;
-		N:=N+1;
-		while not(correct) and N<=Nmax do
-			V:=[op(V),seq(c[i],i=M..M+degPoly)];
-			NDE:=add(V[M+i]*x^(i-1)*AnsatzDalg:-deltakdiff(Y,x,degADE,N),i=1..degPoly+1);
-			ADE:=NDE+ADE;
-			if approach=recurrence then
-				NRE:=ADEtoRE(NDE,Y,A,K);
-				RE:=NRE+RE;
-				Eq:=[seq(Eq[i+1]+subs(Sinit,eval(NRE,[n=i,Sum=add])),i=0..M-1)];
-				Eq:=[op(Eq),seq(subs(Sinit,eval(RE,[n=i,Sum=add])),i=M..M+degPoly+1)];
-				NegInd:=map(v->v=0,[op(indets(Eq,a(negint)))]);
-				Eq:=subs(NegInd,Eq);
-			else
-				NpolEq:=eval(NDE,Y=Lf);
-				polEq:=polEq+NpolEq;
-				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M+degPoly+1]
-			end if;
-			M:=M+degPoly+1;
-			if linsolver=HardSystem then
-				Meqs, beqs := LetGenerateMatrix(Eq, V, M);
-				S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
-				S:=ifelse(S<>NULL,{seq(V[i] = S[i], i = 1 .. M)},NULL);
-			else
-				S:=SolveTools:-Linear(Eq,V,method=linsolver)
-			end if;
-			if S<>NULL then
-				if approach=recurrence then
-					if remove(v->rhs(v)=0,S)={} or has(map(rhs,S),a) then
-						#too few initial values
-						hasterm:=has(Eq,a);
-						S:=NULL;
-						if hasterm then
-							if nL-N<termsOfDegPoly*degPoly then
-								N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
-							end if;
-							return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
-						end if
-					else
-						#verification step
-						REcheck, S, correct:=checkSol(S,RE,NegInd,Sinit,M,nL,a,n)
-					end if
-				else
-					if remove(v->rhs(v)=0,S)={} then
-						S:=NULL
-					else
-						#checking the solution
-						ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
-					end if
-				
-				end if
-			end if;
-			N:=N+1
-		end do;
-		if correct then
-			ADE:=subs(S,ADE);
-			if approach=recurrence then
-				Param:=Param union {n,op(K)};
-				Arbconst:= sort([op(remove(has,indets(REcheck),a) minus Param)])
-			else
-				Param:=Param union {x,y,seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))};
-				Arbconst:= sort([op(indets(ADEcheck) minus Param)])
-			end if;
-			if Arbconst <> [] then
-				`tools/genglobal`('_C',{},'reset');
-				Arbconst:=map(v->v=`tools/genglobal`('_C'),Arbconst);
-				ADE:=subs(Arbconst,ADE)
-			end if;
-			ADE:=collect(ADE,{seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))},'distributed');
-			return ADE=0
+		N:=N+1
+	end do;
+	if correct then
+		ADE:=ifelse(approach=recurrence,subs(S,ADE),ADEcheck);
+		if approach=recurrence then
+			Param:=Param union {n,op(K)};
+			Arbconst:= sort([op(remove(has,indets(REcheck),a) minus Param)])
 		else
-			if approach=recurrence then
+			Param:=Param union {x,y,seq(diff(Y,[x$i]),i=0..dord)};
+			Arbconst:= sort([op(indets(ADEcheck) minus Param)])
+		end if;
+		if Arbconst <> [] then
+			`tools/genglobal`('_C',{},'reset');
+			Arbconst:=map(v->v=`tools/genglobal`('_C'),Arbconst);
+			ADE:=subs(Arbconst,ADE)
+		end if;
+		ADE:=collect(ADE,{seq(diff(Y,[x$i]),i=0..dord)},'distributed');
+		return ADE=0
+	else
+		if approach=recurrence then
+			if nL-N<termsOfDegPoly*degPoly then
+				N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
+			end if;
+			return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
+		else 
+			if sparsity<>0 then
+				return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,diffLf,dord,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
+			else
 				if nL-N<termsOfDegPoly*degPoly then
 					N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
 				end if;
-				return ifelse(allPolyDeg,FixedOrdDegFunGuess(Sinit,degADE,degPoly,Y,A,N,y,x,a,n,K,linsolver,maxIteration,inputConstants),FAIL)
-			else 
-				if sparsity<>0 then
-					return ifelse(allPolyDeg,FFixedOrdDegFunGuess(Lf,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants,sparsity),FAIL)
-				else
-					if nL-N<termsOfDegPoly*degPoly then
-						N:=ifelse(termsOfDegPoly<Nmax,nL-termsOfDegPoly*degPoly,nL-rand(1..floor(Nmax/2))()*(degPoly+1))
-					end if;
-					return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
-				end if
+				return ifelse(allPolyDeg,FFixedOrdDegFunGuess2(Lf,diffLf,dord,degADE,degPoly,Y,N,y,x,linsolver,maxIteration,inputConstants),FAIL)
 			end if
 		end if
-	end proc:
+	end if
+end proc:
 
 $include <NLDE/DalgFunGuess/ADEtoRE/src/ADEtoRE.mm>
 $include <NLDE/DalgFunGuess/CheckSol/src/CheckSol.mm>

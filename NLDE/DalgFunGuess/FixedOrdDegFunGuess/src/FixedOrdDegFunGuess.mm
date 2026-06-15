@@ -107,6 +107,8 @@ FixedOrdDegFunGuess:= proc(Sinit::list,
 	end proc:
 	
 FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
+			   diffLf::table,
+			     dord::nonnegint,
 			   degADE::posint,
 			  degPoly::nonnegint,
 				Y::anyfunc(name),
@@ -126,7 +128,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 		       correct::truefalse:=false,Arbconst::list,ADEcheck::algebraic,nleft,
 		       MnL::posint,ZerosV,zV,zzV::list,unkV::list,idx,Meqs,beqs,pool;
 		M:=(degPoly+1)*N;
-		#the user fixes the maximum of zero-coefficients with minimum possible value 1-nL/M
+		#the user fixes the maximum of zero-coefficients with minimum possible value M-nL
 		pcentge:=max(sparsity,1-nL/M);
 		MnL:=ceil(pcentge*M);
 		total_combs:=binomial(M,MnL);
@@ -139,7 +141,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				zzV:=map(t->t=0,zzV);
 				unkV:=subs(zzV,V);
 				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
-				polEq:=eval(ADE,Y=Lf);
+				polEq:=eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
 				unkV:=remove(t->t=0,unkV);
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..numelems(unkV)]; 
 				if linsolver=HardSystem then
@@ -153,7 +155,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 					if remove(v->rhs(v)=0,S)={} then
 						S:=NULL
 					else
-						ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
+						ADEcheck, S, correct:=polcheckSol(S,ADE,diffLf,dord,nL,y,x)
 					end if
 				end if;
 				if correct then
@@ -188,17 +190,17 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				zzV:=map(t->t=0,zzV);
 				unkV:=subs(zzV,V);
 				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
-				polEq:=eval(ADE,Y=Lf);
+				polEq:=eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
 				unkV:=remove(t->t=0,unkV);
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..numelems(unkV)]; 
-				Meqs, beqs := LetGenerateMatrix(Eq, unkV,numelems(unkV));
+				Meqs, beqs := LetGenerateMatrix(Eq, unkV, numelems(unkV));
 				S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
-				S:=ifelse(S<>NULL,[seq(unkV[i] = S[i], i = 1 .. numelems(unkV))],NULL);
+				S:=ifelse(S<>NULL,{seq(unkV[i] = S[i], i = 1 .. numelems(unkV))},NULL);
 				if S<>NULL then
-					if remove(v->rhs(v)=0,S)=[] then
+					if remove(v->rhs(v)=0,S)={} then
 						S:=NULL
 					else
-						ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
+						ADEcheck, S, correct:=polcheckSol(S,ADE,diffLf,dord,nL,y,x)
 					end if
 				end if;
 				if correct then
@@ -208,15 +210,15 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 			
 		end if;
 		if correct then
-			ADE:=subs(S,ADE);
+			ADE:=ADEcheck;
 			Arbconst:=sort([op(indets(ADEcheck) 
-				minus (inputConstants union {x,y,seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))}))]);
+				minus (inputConstants union {x,y,seq(diff(Y,[x$i]),i=0..dord)}))]);
 			if Arbconst <> [] then
 				`tools/genglobal`('_C',{},'reset');
 				Arbconst:=map(v->v=`tools/genglobal`('_C'),Arbconst);
 				ADE:=subs(Arbconst,ADE)
 			end if;
-			ADE:=collect(ADE,{seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))},'distributed');
+			ADE:=collect(ADE,{seq(diff(Y,[x$i]),i=0..dord)},'distributed');
 			return ADE=0
 		else
 			return FAIL
@@ -225,6 +227,8 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 	end proc:
 	
 FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
+			   diffLf::table,
+			     dord::nonnegint,
 			   degADE::posint,
 			  degPoly::nonnegint,
 				Y::anyfunc(name),
@@ -255,7 +259,8 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 					V:=[seq(c[i],i=0..M-1)];
 					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
-					polEq:=eval(ADE,Y=Lf);
+					#polEq:=eval(ADE,Y=Lf); --expand removed
+					polEq:=eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; 
 					if linsolver=HardSystem then
 						Meqs, beqs := LetGenerateMatrix(Eq, V, M);
@@ -268,7 +273,7 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 						if remove(v->rhs(v)=0,S)={} then
 							S:=NULL
 						else
-							ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
+							ADEcheck, S, correct:=polcheckSol(S,ADE,diffLf,dord,nL,y,x)
 						end if
 					end if;
 					if correct then
@@ -283,16 +288,17 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 					V:=[seq(c[i],i=0..M-1)];
 					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
-					polEq:=eval(ADE,Y=Lf);
+					#polEq:=eval(ADE,Y=Lf);
+					polEq:=eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; 
 					Meqs, beqs := LetGenerateMatrix(Eq, V, M);
 					S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
-					S:=ifelse(S<>NULL,[seq(V[i] = S[i], i = 1 .. M)],NULL);
+					S:=ifelse(S<>NULL,[seq(V[i] = S[i], i = 1 .. numelems(V))],NULL);
 					if S<>NULL then
 						if remove(v->rhs(v)=0,S)=[] then
 							S:=NULL
 						else
-							ADEcheck, S, correct:=polcheckSol(S,ADE,Lf,nL,y,x)
+							ADEcheck, S, correct:=polcheckSol(S,ADE,diffLf,dord,nL,y,x)
 						end if
 					end if;
 					if correct then
@@ -303,15 +309,15 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 			l:=prevlistnumber(degPoly,l)
 		end do;
 		if correct then
-			ADE:=subs(S,ADE);
+			ADE:=ADEcheck;
 			Arbconst:=sort([op(indets(ADEcheck) 
-				minus (constants union {x,y,seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))}))]);
+				minus (constants union {x,y,seq(diff(Y,[x$i]),i=0..dord)}))]);
 			if Arbconst <> [] then
 				`tools/genglobal`('_C',{},'reset');
 				Arbconst:=map(v->v=`tools/genglobal`('_C'),Arbconst);
 				ADE:=subs(Arbconst,ADE)
 			end if;
-			ADE:=collect(ADE,{seq(diff(Y,[x$i]),i=0..PDEtools:-difforder(ADE,x))},'distributed');
+			ADE:=collect(ADE,{seq(diff(Y,[x$i]),i=0..dord)},'distributed');
 			return ADE=0
 		else
 			return FAIL

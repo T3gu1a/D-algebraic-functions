@@ -1,6 +1,5 @@
 
 #checking the guess
-
 checkSol:= proc(Sol::Or(list,set),
 		      REsol::algebraic,
 		     NegInd::list,
@@ -22,19 +21,20 @@ checkSol:= proc(Sol::Or(list,set),
 
 polcheckSol:= proc(Sol::Or(list,set),
 		ADEsol::algebraic,
-		    Lf::algebraic,
+		diffLf::table,
+		  dord::nonnegint,
 		    nL::nonnegint,
 		     y::name,
 		     x::name,
 		     $)
-		local S::list, ADE::algebraic, i::nonnegint,
+		local S::list, ADE::algebraic, j::nonnegint,
 		      checkADE::algebraic, deg::extended_numeric;
 		option `Copyright (c) 2022 Bertrand Teguia T.`;
 		S:=map(normal,Sol);
 		ADE:=subs(S,ADEsol);
-		checkADE:=expand(eval(ADE,y(x)=Lf));
+		checkADE:=expand(eval(ADE,[seq(diff(y(x),[x$j])=diffLf[j],j=0..dord)]));
 		deg:= ldegree(checkADE,x);
-		return ADE, S, evalb(checkADE=0 or deg>=nL-PDEtools:-difforder(ADE,x))
+		return ADE, S, evalb(checkADE=0 or deg>=nL-dord)
 	end proc:
 
 LetGenerateMatrix := proc(Eq::list,V::list,n::integer)
