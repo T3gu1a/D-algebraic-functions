@@ -141,7 +141,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				zzV:=map(t->t=0,zzV);
 				unkV:=subs(zzV,V);
 				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
-				polEq:=eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
+				polEq:=normal(eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]));
 				unkV:=remove(t->t=0,unkV);
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..numelems(unkV)]; 
 				if linsolver=HardSystem then
@@ -190,7 +190,7 @@ FFixedOrdDegFunGuess:= proc(   Lf::algebraic,
 				zzV:=map(t->t=0,zzV);
 				unkV:=subs(zzV,V);
 				ADE:=add(add(unkV[(degPoly+1)*(j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j),i=0..degPoly),j=1..N);
-				polEq:=eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
+				polEq:=normal(eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]));
 				unkV:=remove(t->t=0,unkV);
 				Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..numelems(unkV)]; 
 				Meqs, beqs := LetGenerateMatrix(Eq, unkV, numelems(unkV));
@@ -260,7 +260,7 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
 					#polEq:=eval(ADE,Y=Lf); --expand removed
-					polEq:=eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
+					polEq:=normal(eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]));
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; 
 					if linsolver=HardSystem then
 						Meqs, beqs := LetGenerateMatrix(Eq, V, M);
@@ -289,7 +289,7 @@ FFixedOrdDegFunGuess2:= proc(  Lf::algebraic,
 					ADE:=add(add(V[add(degCoeffs[m]+1,m=1..j-1)+i+1]*x^i*AnsatzDalg:-deltakdiff(Y,x,degADE,j)
 									  ,i=0..degCoeffs[j]),j=1..N);
 					#polEq:=eval(ADE,Y=Lf);
-					polEq:=eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]);
+					polEq:=normal(eval(ADE,[seq(diff(Y,[x$j])=diffLf[j],j=0..dord)]));
 					Eq:=PolynomialTools:-CoefficientList(polEq,x)[1..M]; 
 					Meqs, beqs := LetGenerateMatrix(Eq, V, M);
 					S:=try LinearAlgebra:-LinearSolve(Meqs, beqs) catch: NULL end try;
